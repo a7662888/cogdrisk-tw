@@ -98,6 +98,25 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
 .us-ok{background:#f0fdf4;color:#16a34a;border:1px solid #86efac}
 .us-err{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
 .us-pend{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+/* Composite Score Bars */
+.score-dual{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.score-box{flex:1;min-width:240px;background:#f8fafc;border-radius:12px;padding:16px;border:2px solid #e2e8f0}
+.score-box-title{font-size:13px;font-weight:700;color:#475569;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.score-num{font-size:32px;font-weight:700;margin:4px 0}
+.score-label{font-size:12px;color:#64748b;margin-bottom:10px}
+.score-bar-wrap{background:#e2e8f0;border-radius:20px;height:14px;overflow:hidden;position:relative}
+.score-bar{height:100%;border-radius:20px;transition:width .6s ease}
+.bar-low{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.bar-mod{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.bar-high{background:linear-gradient(90deg,#f97316,#fb923c)}
+.bar-vhigh{background:linear-gradient(90deg,#ef4444,#f87171)}
+.age-group-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:12px}
+.age-mid{background:#dbeafe;color:#1d4ed8}
+.age-late{background:#f3e8ff;color:#7c3aed}
+.score-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:11px}
+.score-legend span{display:flex;align-items:center;gap:3px}
+.score-legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+
 .divider{border:none;border-top:2px solid #e2e8f0;margin:24px 0}
 .profile-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .profile-item{background:#f8fafc;border-radius:8px;padding:8px 14px;font-size:13px;color:#374151}
@@ -846,6 +865,8 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   <div class="section-subtitle" id="res-timestamp"></div>
 
   <div id="res-risk-card"></div>
+  <div id="res-age-group"></div>
+  <div class="score-dual" id="res-composite-scores"></div>
   <div class="profile-row" id="res-profile"></div>
   <hr class="divider">
 
@@ -1073,6 +1094,112 @@ function calcAlcohol(gender) {
   return { weekly: Math.round(weekly*10)/10, level, risk: weekly > cutoff };
 }
 
+// ─── Composite RR-based Scoring (Anstey et al. 2022) ─────────────────────────
+function calcCompositeScore(params) {
+  var age = params.age, gender = params.gender, edu = params.edu;
+  var bmiObj = params.bmiObj, cesd = params.cesd, ipaq = params.ipaq;
+  var cog = params.cog, soc = params.soc, mind = params.mind;
+  var vasc = params.vasc, smoke = params.smoke, isi = params.isi;
+  var isMidlife = age < 65;
+  var isFemale  = gender === 'female';
+
+  // Age / sex adjustment table (decade bins)
+  var ageMale   = {40:-6,45:-4,50:-2,55:-1,60:0,65:2,70:5,75:9,80:14,85:23};
+  var ageFemale = {40:-5,45:-3,50:-1,55:0,60:1,65:3,70:6,75:10,80:15,85:24};
+  function agePts(a, female) {
+    var tbl = female ? ageFemale : ageMale;
+    var bin = Math.min(85, Math.max(40, Math.floor(a/5)*5));
+    if (tbl[bin] !== undefined) return tbl[bin];
+    var keys = Object.keys(tbl).map(Number);
+    var nearest = keys.reduce(function(prev,k){ return Math.abs(k-bin)<Math.abs(prev-bin)?k:prev; });
+    return tbl[nearest];
+  }
+
+  // Education years mapping
+  var eduYrs = {primary:6,junior:9,senior:12,college:14,university:16,postgrad:18};
+  var yrsEdu = eduYrs[edu] || 12;
+  var eduPts = yrsEdu < 8 ? 4 : yrsEdu < 12 ? 2 : 0;
+
+  // BMI points (Taiwan cutoff 27, midlife=+3, late-life=+1)
+  var bmiVal = bmiObj ? bmiObj.bmi : null;
+  var bmiPts = (bmiVal && bmiVal >= 27) ? (isMidlife ? 3 : 1) : 0;
+
+  // Physical activity
+  var ipaqPts = (ipaq.level === '高度活動') ? -3 : (ipaq.level === '活動不足') ? 2 : 0;
+
+  // Cognitive engagement
+  var cogPts = (cog.avg >= 2.5) ? -4 : (cog.avg < 1.5) ? 3 : 0;
+
+  // Depression CES-D >10 (CES-D-10 equivalent of CES-D-20 >20)
+  var cesdPts = cesd.total > 10 ? 3 : 0;
+
+  // Fish (protective) — d_fish >=1/week
+  var fishEl = document.querySelector('input[name="d_fish"]:checked');
+  var fishVal = fishEl ? parseInt(fishEl.value) : 0;
+  var fishPts = fishVal >= 1 ? -1 : 0;
+
+  // Social isolation
+  var socPts = soc.total >= 6 ? 2 : 0;
+
+  // Smoking
+  var smokePts = smoke.status === 'current' ? 2 : smoke.status === 'former' ? 1 : 0;
+
+  // Vascular factors (individual)
+  var htnEl = document.querySelector('input[name="q_htn"]:checked');
+  var htnPts = (htnEl && htnEl.value === 'yes') ? (isMidlife ? 2 : 1) : 0;
+  var dmEl = document.querySelector('input[name="q_dm"]:checked');
+  var dmPts = (dmEl && dmEl.value === 'yes') ? (isFemale ? 3 : 2) : 0;
+  var cholEl = document.querySelector('input[name="q_chol"]:checked');
+  var cholPts = (isMidlife && cholEl && cholEl.value === 'yes') ? 2 : 0;
+  var strokeEl = document.querySelector('input[name="q_stroke"]:checked');
+  var strokePts = (strokeEl && strokeEl.value === 'yes') ? 2 : 0;
+  var tbiEl = document.querySelector('input[name="q_head"]:checked');
+  var tbiPts = (tbiEl && tbiEl.value === 'yes') ? 2 : 0;
+  var afibEl = document.querySelector('input[name="q_afib"]:checked');
+  var afibVal = afibEl ? afibEl.value : '';
+  var afibPts = (afibVal && afibVal !== 'no' && afibVal !== 'dk') ? 2 : 0;
+
+  // Insomnia (Any Dementia only)
+  var insPts = isi.total >= 8 ? 2 : 0;
+
+  // Pesticide (AD only)
+  var pestEl = document.querySelector('input[name="q_pest"]:checked');
+  var pestVal = pestEl ? pestEl.value : '';
+  var pestPts = (pestVal === 'yes') ? 2 : 0;
+
+  var ageScore = agePts(age, isFemale);
+
+  // Any Dementia score (includes AFib + insomnia; excludes pesticide)
+  var anyDemRaw = ageScore + eduPts + bmiPts + ipaqPts + cogPts + cesdPts + fishPts +
+                  socPts + smokePts + htnPts + dmPts + cholPts + strokePts + tbiPts +
+                  afibPts + insPts;
+
+  // Alzheimer Disease score (includes pesticide; excludes AFib + insomnia)
+  var adRaw = ageScore + eduPts + bmiPts + ipaqPts + cogPts + cesdPts + fishPts +
+              socPts + smokePts + htnPts + dmPts + cholPts + strokePts + tbiPts +
+              pestPts;
+
+  // Normalize: display = raw + 15, capped 0–50
+  function normalize(r) { return Math.min(50, Math.max(0, r + 15)); }
+  function riskLabel(r) {
+    if (r < 10)  return { label:'低風險',   cls:'bar-low',   color:'#16a34a' };
+    if (r < 18)  return { label:'中等風險', cls:'bar-mod',   color:'#d97706' };
+    if (r < 25)  return { label:'偏高風險', cls:'bar-high',  color:'#ea580c' };
+    return             { label:'高風險',   cls:'bar-vhigh', color:'#dc2626' };
+  }
+
+  return {
+    anyDemRaw: anyDemRaw, adRaw: adRaw,
+    anyDemDisplay: normalize(anyDemRaw),
+    adDisplay:     normalize(adRaw),
+    anyDemRisk: riskLabel(anyDemRaw),
+    adRisk:     riskLabel(adRaw),
+    ageGroup:      isMidlife ? '中年期（40–64 歲）' : '晚年期（65 歲以上）',
+    ageGroupClass: isMidlife ? 'age-mid' : 'age-late',
+    isMidlife: isMidlife
+  };
+}
+
 // ─── Compute and Show Results ─────────────────────────────────────────────────
 function computeAndShowResults() {
   const age = iv('q_age');
@@ -1123,14 +1250,42 @@ function computeAndShowResults() {
   document.getElementById('res-timestamp').textContent =
     '評估時間：' + now.toLocaleDateString('zh-TW') + ' ' + now.toLocaleTimeString('zh-TW');
 
-  // Risk card
+  // Composite scoring (RR-based)
+  const comp = calcCompositeScore({age, gender, edu, bmiObj, cesd, ipaq, cog, soc, mind, vasc, smoke, isi});
+
+  // Risk card (composite-driven)
+  const compEmoji = comp.anyDemRisk.label === '低風險' ? '🟢' : comp.anyDemRisk.label === '中等風險' ? '🟡' : '🔴';
   document.getElementById('res-risk-card').innerHTML =
     '<div class="risk-card ' + overallClass + '">' +
-    '<div style="font-size:40px">' + (riskCount<=2?'🟢':riskCount<=4?'🟡':'🔴') + '</div>' +
-    '<div class="risk-level">整體風險評估：' + overallRisk + '</div>' +
-    '<div class="risk-desc">本次評估共發現 <strong>' + riskCount + ' 項</strong>需要關注的領域</div>' +
-    '<div class="risk-desc" style="margin-top:6px">' + overallDesc + '</div>' +
+    '<div style="font-size:40px">' + compEmoji + '</div>' +
+    '<div class="risk-level">整體風險評估：' + comp.anyDemRisk.label + '</div>' +
+    '<div class="risk-desc">RR 複合評分（任何失智）：<strong>' + comp.anyDemDisplay + ' / 50</strong>\u3000|\u3000' +
+    '阿茲海默症：<strong>' + comp.adDisplay + ' / 50</strong></div>' +
+    '<div class="risk-desc" style="margin-top:6px">共發現 <strong>' + riskCount + ' 項</strong>需要關注的生活型態領域</div>' +
     '</div>';
+
+  // Age group badge
+  document.getElementById('res-age-group').innerHTML =
+    '<div class="age-group-badge ' + comp.ageGroupClass + '">評估期別：' + comp.ageGroup + '</div>';
+
+  // Dual score bars
+  function barHTML(title, icon, disp, raw, risk) {
+    var pct = Math.round(disp * 2) + '%';
+    return '<div class="score-box">' +
+      '<div class="score-box-title">' + icon + ' ' + title + '</div>' +
+      '<div class="score-num" style="color:' + risk.color + '">' + disp + '</div>' +
+      '<div class="score-label">' + risk.label + '\u3000（原始分：' + (raw >= 0 ? '+' : '') + raw + '）</div>' +
+      '<div class="score-bar-wrap"><div class="score-bar ' + risk.cls + '" style="width:' + pct + '"></div></div>' +
+      '<div class="score-legend">' +
+        '<span><i style="background:#22c55e"></i>低（&lt;10）</span>' +
+        '<span><i style="background:#f59e0b"></i>中（10–17）</span>' +
+        '<span><i style="background:#f97316"></i>偏高（18–24）</span>' +
+        '<span><i style="background:#ef4444"></i>高（≥25）</span>' +
+      '</div></div>';
+  }
+  document.getElementById('res-composite-scores').innerHTML =
+    barHTML('任何失智 複合評分', '🧠', comp.anyDemDisplay, comp.anyDemRaw, comp.anyDemRisk) +
+    barHTML('阿茲海默症 複合評分', '🔬', comp.adDisplay, comp.adRaw, comp.adRisk);
 
   // Profile
   const eduLabel = {'primary':'國小','junior':'國中','senior':'高中/高職','college':'專科','university':'大學','postgrad':'碩士以上'}[edu] || '未填';
@@ -1186,7 +1341,7 @@ function computeAndShowResults() {
   document.getElementById('res-recommendations').innerHTML = recHTML;
 
   // 自動靜默上傳（no-cors，不阻塞 UI）
-  silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc);
+  silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp);
 
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -1297,6 +1452,17 @@ function downloadTextReport() {
   txt += '🚬 吸菸狀況：' + smoke.label + '　' + (smoke.risk?'⚠️':'✅') + '\n';
   txt += '🍺 飲酒：每週 ' + alc.weekly + ' 份　' + alc.level + '　' + (alc.risk?'⚠️':'✅') + '\n\n';
 
+  // Composite scoring for text report
+  var comp2 = calcCompositeScore({
+    age: age, gender: rv('q_gender'), edu: sv('q_edu'),
+    bmiObj: bmiObj, cesd: cesd, ipaq: ipaq, cog: cog,
+    soc: soc, mind: mind, vasc: vasc, smoke: smoke, isi: isi
+  });
+  txt += '【RR 複合評分（Anstey et al. 2022）】\n';
+  txt += '評估期別：' + comp2.ageGroup + '\n';
+  txt += '任何失智 複合分數：' + comp2.anyDemDisplay + ' / 50　（原始分：' + (comp2.anyDemRaw >= 0 ? '+' : '') + comp2.anyDemRaw + '）　' + comp2.anyDemRisk.label + '\n';
+  txt += '阿茲海默症 複合分數：' + comp2.adDisplay + ' / 50　（原始分：' + (comp2.adRaw >= 0 ? '+' : '') + comp2.adRaw + '）　' + comp2.adRisk.label + '\n';
+  txt += '評分說明：顯示分 = 原始分 + 15，上限 50；<10 低風險，10-17 中等，18-24 偏高，>=25 高\n\n';
   txt += '【注意事項】\n';
   txt += '本報告僅供健康促進參考，不能取代醫師診斷。\n';
   txt += '改編自 CogDrisk © NeuRA & UNSW Sydney。\n';
@@ -1309,7 +1475,7 @@ function downloadTextReport() {
 }
 
 // ─── Auto Google Drive Upload（結果顯示後靜默觸發）────────────────────────────
-function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc) {
+function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp) {
   if (!SCRIPT_URL) return;
   const payload = {
     tool: 'CogDrisk-TW', version: '1.0-TW',
@@ -1326,6 +1492,13 @@ function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc) {
     alc_weekly: alc.weekly, alc_level: alc.level,
     vasc_count: vasc.count, vasc_factors: vasc.factors.join('|'),
     pest: rv('q_pest'),
+    comp_any_dem_raw: comp ? comp.anyDemRaw : null,
+    comp_any_dem_display: comp ? comp.anyDemDisplay : null,
+    comp_any_dem_risk: comp ? comp.anyDemRisk.label : null,
+    comp_ad_raw: comp ? comp.adRaw : null,
+    comp_ad_display: comp ? comp.adDisplay : null,
+    comp_ad_risk: comp ? comp.adRisk.label : null,
+    age_group: comp ? comp.ageGroup : null,
     notes: sv('q_notes'),
     raw: {
       q_htn: rv('q_htn'), q_htn_med: rv('q_htn_med'),
