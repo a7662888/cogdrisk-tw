@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogDrisk 失智風險評估工具 繁體中文版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC",Arial,sans-serif;background:linear-gradient(135deg,#0f766e 0%,#0891b2 100%);min-height:100vh;padding:20px;line-height:1.6}
+.container{max-width:920px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.header{background:linear-gradient(135deg,#0f766e 0%,#0891b2 100%);color:#fff;padding:30px;text-align:center}
+.header h1{font-size:26px;margin-bottom:8px}
+.header p{font-size:14px;opacity:.9}
+.badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;margin:4px 2px}
+.badge-y{background:#fbbf24;color:#1c1917}
+.badge-c{background:#22d3ee;color:#164e63}
+.badge-g{background:#4ade80;color:#14532d}
+.progress-area{padding:14px 30px 0;background:#f8fafc}
+.progress-bar{background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#0f766e,#0891b2);height:100%;width:0%;transition:width .4s}
+.progress-text{text-align:center;color:#64748b;font-size:13px;margin-top:6px;padding-bottom:10px}
+.content{padding:30px}
+.section{display:none}
+.section.active{display:block}
+.section-title{font-size:22px;font-weight:700;color:#0f766e;border-bottom:3px solid #ccfbf1;padding-bottom:10px;margin-bottom:8px}
+.section-subtitle{color:#64748b;font-size:14px;margin-bottom:20px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-weight:600;color:#1e293b;margin-bottom:8px;font-size:15px}
+.qn{display:inline-flex;align-items:center;justify-content:center;background:#0f766e;color:#fff;width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;margin-right:8px;flex-shrink:0;vertical-align:middle}
+.form-hint{color:#64748b;font-size:12px;margin-bottom:6px;margin-top:-4px}
+.radio-group{display:flex;flex-direction:column;gap:6px}
+.ro{display:flex;align-items:center;padding:9px 14px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;transition:all .2s;font-size:14px}
+.ro:hover{border-color:#0f766e;background:#f0fdf9}
+.ro.selected{border-color:#0f766e;background:#f0fdf9}
+.ro input{margin-right:10px;accent-color:#0f766e;width:15px;height:15px;flex-shrink:0}
+.likert-wrap{overflow-x:auto}
+table.lk{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+table.lk th{background:#f0fdf9;color:#0f766e;padding:8px 6px;text-align:center;border:1px solid #e2e8f0;font-weight:600}
+table.lk th:first-child{text-align:left;min-width:180px}
+table.lk td{padding:9px 6px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle}
+table.lk td:first-child{text-align:left;padding-left:10px;font-size:13px}
+table.lk tr:nth-child(even){background:#f8fafc}
+table.lk tr:hover{background:#f0fdf9}
+table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
+.form-input,.form-select{width:100%;padding:10px 12px;border:2px solid #e2e8f0;border-radius:8px;font-size:15px;font-family:inherit;transition:border-color .2s;background:#fff}
+.form-input:focus,.form-select:focus{outline:none;border-color:#0f766e}
+.form-row{display:flex;gap:16px;align-items:flex-end}
+.form-row .form-group{flex:1;margin-bottom:0}
+.info-box{background:#f0fdf9;border:1px solid #99f6e4;border-radius:10px;padding:16px;margin-bottom:20px;font-size:14px;color:#134e4a}
+.info-box h3{font-size:15px;margin-bottom:8px;color:#0f766e}
+.info-box ul{list-style:disc;padding-left:18px}
+.info-box ul li{margin-bottom:4px}
+.warn-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#9a3412}
+.btn-group{display:flex;gap:10px;justify-content:space-between;margin-top:28px;flex-wrap:wrap}
+.btn{padding:11px 22px;border-radius:10px;border:none;font-size:14px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#0f766e,#0891b2);color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:#f1f5f9;color:#475569}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-outline{background:#fff;color:#0f766e;border:2px solid #0f766e}
+.btn-outline:hover{background:#f0fdf9}
+.btn-sm{padding:8px 16px;font-size:13px}
+/* Results */
+.results-page{display:none}
+.results-page.active{display:block}
+.risk-card{padding:22px;border-radius:12px;text-align:center;margin-bottom:20px}
+.risk-low{background:#f0fdf4;border:2px solid #86efac}
+.risk-mod{background:#fffbeb;border:2px solid #fcd34d}
+.risk-high{background:#fef2f2;border:2px solid #fca5a5}
+.risk-level{font-size:26px;font-weight:700;margin-bottom:6px}
+.risk-low .risk-level{color:#16a34a}
+.risk-mod .risk-level{color:#d97706}
+.risk-high .risk-level{color:#dc2626}
+.risk-desc{font-size:14px;color:#475569}
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-bottom:22px}
+.dc{border-radius:10px;padding:12px 14px;border:1px solid}
+.dc-good{background:#f0fdf4;border-color:#86efac}
+.dc-caution{background:#fffbeb;border-color:#fcd34d}
+.dc-risk{background:#fef2f2;border-color:#fca5a5}
+.dc-title{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.dc-good .dc-title{color:#15803d}
+.dc-caution .dc-title{color:#b45309}
+.dc-risk .dc-title{color:#b91c1c}
+.dc-value{font-size:12px;color:#64748b}
+.rec-block{margin-bottom:16px}
+.rec-head{font-size:15px;font-weight:700;padding:9px 14px;border-radius:8px;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rec-caution{background:#fffbeb;color:#b45309}
+.rec-risk{background:#fef2f2;color:#b91c1c}
+.rec-body{background:#f8fafc;border-radius:8px;padding:12px 16px;font-size:13px;color:#374151}
+.rec-body ul{list-style:none;padding:0}
+.rec-body ul li{padding:3px 0 3px 18px;position:relative}
+.rec-body ul li::before{content:"→";position:absolute;left:0;color:#0f766e}
+.strength-box{background:#f0fdf9;border:1px solid #99f6e4;border-radius:10px;padding:14px;margin-bottom:20px}
+.strength-box h3{font-weight:700;color:#0f766e;margin-bottom:10px;font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{background:#0f766e;color:#fff;padding:3px 12px;border-radius:20px;font-size:12px}
+.upload-status{padding:9px 14px;border-radius:8px;font-size:13px;margin-top:8px;display:none}
+.us-ok{background:#f0fdf4;color:#16a34a;border:1px solid #86efac}
+.us-err{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+.us-pend{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+.divider{border:none;border-top:2px solid #e2e8f0;margin:24px 0}
+.profile-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.profile-item{background:#f8fafc;border-radius:8px;padding:8px 14px;font-size:13px;color:#374151}
+.profile-item strong{color:#0f766e}
+@media print{
+  body{background:#fff;padding:0}
+  .container{box-shadow:none;border-radius:0}
+  .header{background:#0f766e !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .btn-group,.progress-area,.no-print{display:none !important}
+}
+@media(max-width:640px){
+  .content{padding:16px}
+  .form-row{flex-direction:column}
+  table.lk{font-size:11px}
+  .domain-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>🧠 CogDrisk 失智風險評估工具</h1>
+  <p>繁體中文版 | 社區版認知健康與失智風險因子評估</p>
+  <div style="margin-top:10px">
+    <span class="badge badge-y">v1.0-TW</span>
+    <span class="badge badge-c">社區使用</span>
+    <span class="badge badge-g">免費工具</span>
+  </div>
+</div>
+<div class="progress-area" id="progressArea" style="display:none">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText"></div>
+</div>
+<div class="content">
+
+<!-- ===== SECTION 0: INTRO ===== -->
+<div class="section active" id="sec-intro">
+  <div class="section-title">歡迎使用 CogDrisk 失智風險評估工具</div>
+  <div class="info-box">
+    <h3>📋 關於本工具</h3>
+    <p>本工具改編自澳洲神經科學研究所（NeuRA）與新南威爾斯大學（UNSW Sydney）共同開發之 <strong>CogDrisk</strong>，專為台灣社區民眾設計，協助您了解個人與失智症相關的生活型態風險因子。</p>
+    <br>
+    <ul>
+      <li>問卷共約 <strong>55 題</strong>，需時約 <strong>10–15 分鐘</strong></li>
+      <li>涵蓋：健康狀況、睡眠、情緒、體能活動、認知刺激、社交、飲食、菸酒習慣</li>
+      <li>完成後立即顯示各領域評估結果與個人化建議</li>
+      <li>資料可選擇上傳至雲端供後續追蹤（需設定）</li>
+    </ul>
+  </div>
+  <div class="warn-box">
+    ⚠️ <strong>重要說明：</strong>本工具僅供教育與健康促進用途，<strong>不能替代</strong>醫師診斷。若您對認知功能有疑慮，請諮詢神經內科或記憶門診。
+  </div>
+  <div class="info-box">
+    <h3>🔒 隱私保護</h3>
+    <p>本工具為純前端運算，資料不會自動傳送至任何第三方伺服器。如選擇上傳，資料將傳送至您指定的 Google Drive。</p>
+  </div>
+  <div class="btn-group">
+    <div></div>
+    <button class="btn btn-primary" onclick="goSection(1)">開始評估 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: PERSONAL INFO ===== -->
+<div class="section" id="sec-personal">
+  <div class="section-title">第一節：個人基本資料</div>
+  <div class="section-subtitle">請填寫您的基本個人資料，以利後續評估計算。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">1</span>您目前的年齡？（歲）</label>
+    <input class="form-input" type="number" id="q_age" min="30" max="100" placeholder="例：65">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label"><span class="qn">2</span>身高（公分）</label>
+      <input class="form-input" type="number" id="q_height" min="100" max="220" placeholder="例：165">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><span class="qn">3</span>體重（公斤）</label>
+      <input class="form-input" type="number" id="q_weight" min="30" max="200" placeholder="例：65">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">4</span>性別</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_gender" value="male">男性</label>
+      <label class="ro"><input type="radio" name="q_gender" value="female">女性</label>
+      <label class="ro"><input type="radio" name="q_gender" value="other">其他／不方便透露</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">5</span>最高學歷</label>
+    <select class="form-select" id="q_edu">
+      <option value="">請選擇</option>
+      <option value="primary">國小（含以下）</option>
+      <option value="junior">國中</option>
+      <option value="senior">高中／高職</option>
+      <option value="college">專科</option>
+      <option value="university">大學</option>
+      <option value="postgrad">碩士以上</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">6</span>目前婚姻／伴侶狀況</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_relation" value="married_living">已婚且同住</label>
+      <label class="ro"><input type="radio" name="q_relation" value="partner_living">有伴侶且同住（未婚）</label>
+      <label class="ro"><input type="radio" name="q_relation" value="partner_apart">有伴侶但分住</label>
+      <label class="ro"><input type="radio" name="q_relation" value="single">無伴侶</label>
+      <label class="ro"><input type="radio" name="q_relation" value="widowed">喪偶</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">7</span>您能流利使用幾種語言？（含母語）</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_lang" value="1">1 種</label>
+      <label class="ro"><input type="radio" name="q_lang" value="2">2 種</label>
+      <label class="ro"><input type="radio" name="q_lang" value="3">3 種以上</label>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(0)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(2)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: HEALTH ===== -->
+<div class="section" id="sec-health">
+  <div class="section-title">第二節：健康狀況</div>
+  <div class="section-subtitle">請依據醫師曾告知您的診斷或個人了解作答。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">8</span>您是否曾被醫師告知有<strong>高膽固醇</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_chol" value="yes">是</label>
+      <label class="ro"><input type="radio" name="q_chol" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_chol" value="dk">不知道</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">9</span>您是否曾被醫師診斷有<strong>糖尿病</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_dm" value="yes">是</label>
+      <label class="ro"><input type="radio" name="q_dm" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_dm" value="dk">不知道</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">10</span>您是否曾有<strong>頭部外傷</strong>（包含車禍、跌倒造成的腦震盪或更嚴重傷害）？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_head" value="yes">是</label>
+      <label class="ro"><input type="radio" name="q_head" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_head" value="dk">不確定</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">11</span>您是否曾被醫師診斷有<strong>高血壓</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_htn" value="yes">是</label>
+      <label class="ro"><input type="radio" name="q_htn" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_htn" value="dk">不知道</label>
+    </div>
+  </div>
+
+  <div class="form-group" id="htn_med_group" style="display:none">
+    <label class="form-label"><span class="qn">12</span>您目前是否有服用<strong>降血壓藥物</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_htn_med" value="yes">是，有規律服藥</label>
+      <label class="ro"><input type="radio" name="q_htn_med" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_htn_med" value="irregular">有，但未規律服藥</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">13</span>您是否曾被醫師告知有<strong>中風</strong>或<strong>暫時性腦缺血發作 (TIA)</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_stroke" value="yes">是</label>
+      <label class="ro"><input type="radio" name="q_stroke" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_stroke" value="dk">不確定</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">14</span>您是否曾被醫師告知有<strong>心房顫動</strong>（不規則心跳）？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_afib" value="afib_stroke">是，且曾合併中風</label>
+      <label class="ro"><input type="radio" name="q_afib" value="afib_only">是，但未合併中風</label>
+      <label class="ro"><input type="radio" name="q_afib" value="no">否</label>
+      <label class="ro"><input type="radio" name="q_afib" value="dk">不知道</label>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(1)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(3)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: SLEEP (ISI) ===== -->
+<div class="section" id="sec-sleep">
+  <div class="section-title">第三節：睡眠品質</div>
+  <div class="section-subtitle">以下問題詢問您<strong>近兩週</strong>的睡眠狀況。（失眠嚴重度量表 ISI）</div>
+
+  <div class="form-group">
+    <label class="form-label">請評估您目前失眠問題的<strong>嚴重程度</strong>：</label>
+    <div class="likert-wrap">
+    <table class="lk">
+      <thead><tr>
+        <th>失眠問題</th><th>無 (0)</th><th>輕微 (1)</th><th>中等 (2)</th><th>嚴重 (3)</th><th>非常嚴重 (4)</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>入睡困難</td>
+          <td><input type="radio" name="sl1" value="0"></td><td><input type="radio" name="sl1" value="1"></td><td><input type="radio" name="sl1" value="2"></td><td><input type="radio" name="sl1" value="3"></td><td><input type="radio" name="sl1" value="4"></td>
+        </tr>
+        <tr><td>維持睡眠困難（夜間易醒）</td>
+          <td><input type="radio" name="sl2" value="0"></td><td><input type="radio" name="sl2" value="1"></td><td><input type="radio" name="sl2" value="2"></td><td><input type="radio" name="sl2" value="3"></td><td><input type="radio" name="sl2" value="4"></td>
+        </tr>
+        <tr><td>太早醒來無法再入睡</td>
+          <td><input type="radio" name="sl3" value="0"></td><td><input type="radio" name="sl3" value="1"></td><td><input type="radio" name="sl3" value="2"></td><td><input type="radio" name="sl3" value="3"></td><td><input type="radio" name="sl3" value="4"></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">15</span>您對目前整體<strong>睡眠品質</strong>的滿意程度？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="sl4" value="0">非常滿意</label>
+      <label class="ro"><input type="radio" name="sl4" value="1">滿意</label>
+      <label class="ro"><input type="radio" name="sl4" value="2">尚可</label>
+      <label class="ro"><input type="radio" name="sl4" value="3">不滿意</label>
+      <label class="ro"><input type="radio" name="sl4" value="4">非常不滿意</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">16</span>您的睡眠問題，在旁人眼中對您<strong>生活品質的影響</strong>程度？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="sl5" value="0">完全沒有</label>
+      <label class="ro"><input type="radio" name="sl5" value="1">有一點</label>
+      <label class="ro"><input type="radio" name="sl5" value="2">有些程度</label>
+      <label class="ro"><input type="radio" name="sl5" value="3">相當明顯</label>
+      <label class="ro"><input type="radio" name="sl5" value="4">非常明顯</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">17</span>您對目前睡眠問題的<strong>擔憂或困擾程度</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="sl6" value="0">完全不擔憂</label>
+      <label class="ro"><input type="radio" name="sl6" value="1">有一點</label>
+      <label class="ro"><input type="radio" name="sl6" value="2">有些程度</label>
+      <label class="ro"><input type="radio" name="sl6" value="3">相當擔憂</label>
+      <label class="ro"><input type="radio" name="sl6" value="4">非常擔憂</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">18</span>您的睡眠問題對<strong>日常功能</strong>（如白天疲倦、專注力、記憶力、工作能力、情緒等）的干擾程度？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="sl7" value="0">完全沒有干擾</label>
+      <label class="ro"><input type="radio" name="sl7" value="1">有一點干擾</label>
+      <label class="ro"><input type="radio" name="sl7" value="2">有些干擾</label>
+      <label class="ro"><input type="radio" name="sl7" value="3">相當干擾</label>
+      <label class="ro"><input type="radio" name="sl7" value="4">非常嚴重干擾</label>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(2)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(4)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: MOOD (CES-D 10) ===== -->
+<div class="section" id="sec-mood">
+  <div class="section-title">第四節：情緒健康</div>
+  <div class="section-subtitle">以下問題詢問您<strong>過去一週</strong>的感受。（流行病學研究中心憂鬱量表 CES-D）</div>
+  <div class="likert-wrap">
+  <table class="lk">
+    <thead><tr>
+      <th>過去一週，您有多常出現以下感受？</th>
+      <th>極少<br>(&lt;1天)</th>
+      <th>有時<br>(1-2天)</th>
+      <th>偶爾<br>(3-4天)</th>
+      <th>大部分<br>(5-7天)</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>1. 被一些平時不會困擾我的事情所困擾</td>
+        <td><input type="radio" name="md1" value="0"></td><td><input type="radio" name="md1" value="1"></td><td><input type="radio" name="md1" value="2"></td><td><input type="radio" name="md1" value="3"></td>
+      </tr>
+      <tr><td>2. 難以集中注意力做事</td>
+        <td><input type="radio" name="md2" value="0"></td><td><input type="radio" name="md2" value="1"></td><td><input type="radio" name="md2" value="2"></td><td><input type="radio" name="md2" value="3"></td>
+      </tr>
+      <tr><td>3. 感到情緒低落、憂鬱</td>
+        <td><input type="radio" name="md3" value="0"></td><td><input type="radio" name="md3" value="1"></td><td><input type="radio" name="md3" value="2"></td><td><input type="radio" name="md3" value="3"></td>
+      </tr>
+      <tr><td>4. 做任何事情都感到費力</td>
+        <td><input type="radio" name="md4" value="0"></td><td><input type="radio" name="md4" value="1"></td><td><input type="radio" name="md4" value="2"></td><td><input type="radio" name="md4" value="3"></td>
+      </tr>
+      <tr><td>5. ★ 對未來感到有希望（反向題）</td>
+        <td><input type="radio" name="md5" value="3"></td><td><input type="radio" name="md5" value="2"></td><td><input type="radio" name="md5" value="1"></td><td><input type="radio" name="md5" value="0"></td>
+      </tr>
+      <tr><td>6. 感到恐懼、害怕</td>
+        <td><input type="radio" name="md6" value="0"></td><td><input type="radio" name="md6" value="1"></td><td><input type="radio" name="md6" value="2"></td><td><input type="radio" name="md6" value="3"></td>
+      </tr>
+      <tr><td>7. 睡眠不安穩、輾轉難眠</td>
+        <td><input type="radio" name="md7" value="0"></td><td><input type="radio" name="md7" value="1"></td><td><input type="radio" name="md7" value="2"></td><td><input type="radio" name="md7" value="3"></td>
+      </tr>
+      <tr><td>8. ★ 感到快樂、愉快（反向題）</td>
+        <td><input type="radio" name="md8" value="3"></td><td><input type="radio" name="md8" value="2"></td><td><input type="radio" name="md8" value="1"></td><td><input type="radio" name="md8" value="0"></td>
+      </tr>
+      <tr><td>9. 感到孤獨</td>
+        <td><input type="radio" name="md9" value="0"></td><td><input type="radio" name="md9" value="1"></td><td><input type="radio" name="md9" value="2"></td><td><input type="radio" name="md9" value="3"></td>
+      </tr>
+      <tr><td>10. 提不起勁來</td>
+        <td><input type="radio" name="md10" value="0"></td><td><input type="radio" name="md10" value="1"></td><td><input type="radio" name="md10" value="2"></td><td><input type="radio" name="md10" value="3"></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="form-hint" style="margin-top:8px">★ 標記題目為反向題，選項代表意義已調整。</div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(3)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(5)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: PHYSICAL ACTIVITY (IPAQ) ===== -->
+<div class="section" id="sec-physical">
+  <div class="section-title">第五節：日常體能活動</div>
+  <div class="section-subtitle">請回想您<strong>過去 7 天</strong>的體能活動狀況（每次至少 10 分鐘才計算）。</div>
+
+  <div class="info-box">
+    <ul>
+      <li><strong>劇烈活動</strong>：需耗費很大力氣、明顯喘息，如快跑、重物搬運、有氧舞蹈、快速騎車</li>
+      <li><strong>中等活動</strong>：需耗費一些力氣、稍微喘息，如輕鬆騎車、健走、打太極、游泳</li>
+      <li><strong>步行</strong>：任何場合的步行（通勤、購物、休閒等）</li>
+    </ul>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label"><span class="qn">19</span>劇烈活動：每週幾天？</label>
+      <select class="form-select" id="pa_vig_days">
+        <option value="0">0 天（無）</option>
+        <option value="1">1 天</option><option value="2">2 天</option><option value="3">3 天</option>
+        <option value="4">4 天</option><option value="5">5 天</option><option value="6">6 天</option><option value="7">7 天</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">每次約幾分鐘？</label>
+      <select class="form-select" id="pa_vig_min">
+        <option value="0">不適用</option><option value="10">約 10 分鐘</option><option value="15">約 15 分鐘</option>
+        <option value="20">約 20 分鐘</option><option value="30">約 30 分鐘</option>
+        <option value="45">約 45 分鐘</option><option value="60">約 60 分鐘</option><option value="90">90 分鐘以上</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label"><span class="qn">20</span>中等活動：每週幾天？</label>
+      <select class="form-select" id="pa_mod_days">
+        <option value="0">0 天（無）</option>
+        <option value="1">1 天</option><option value="2">2 天</option><option value="3">3 天</option>
+        <option value="4">4 天</option><option value="5">5 天</option><option value="6">6 天</option><option value="7">7 天</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">每次約幾分鐘？</label>
+      <select class="form-select" id="pa_mod_min">
+        <option value="0">不適用</option><option value="10">約 10 分鐘</option><option value="15">約 15 分鐘</option>
+        <option value="20">約 20 分鐘</option><option value="30">約 30 分鐘</option>
+        <option value="45">約 45 分鐘</option><option value="60">約 60 分鐘</option><option value="90">90 分鐘以上</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label"><span class="qn">21</span>步行：每週幾天？</label>
+      <select class="form-select" id="pa_walk_days">
+        <option value="0">0 天（無）</option>
+        <option value="1">1 天</option><option value="2">2 天</option><option value="3">3 天</option>
+        <option value="4">4 天</option><option value="5">5 天</option><option value="6">6 天</option><option value="7">7 天</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">每次約幾分鐘？</label>
+      <select class="form-select" id="pa_walk_min">
+        <option value="0">不適用</option><option value="10">約 10 分鐘</option><option value="15">約 15 分鐘</option>
+        <option value="20">約 20 分鐘</option><option value="30">約 30 分鐘</option>
+        <option value="45">約 45 分鐘</option><option value="60">約 60 分鐘</option><option value="90">90 分鐘以上</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(4)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(6)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: LEISURE / COGNITIVE ===== -->
+<div class="section" id="sec-leisure">
+  <div class="section-title">第六節：休閒與認知活動</div>
+  <div class="section-subtitle">以下問題詢問您<strong>過去一年</strong>的休閒與智識活動頻率。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">22</span>您每天花多少時間<strong>閱讀</strong>（包含紙本與線上）？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="lei_read" value="0">幾乎不閱讀</label>
+      <label class="ro"><input type="radio" name="lei_read" value="1">少於 1 小時</label>
+      <label class="ro"><input type="radio" name="lei_read" value="2">1–2 小時</label>
+      <label class="ro"><input type="radio" name="lei_read" value="3">2–3 小時</label>
+      <label class="ro"><input type="radio" name="lei_read" value="4">3 小時以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">以下活動的頻率（請針對每項選擇最符合的頻率）：</label>
+    <div class="likert-wrap">
+    <table class="lk">
+      <thead><tr>
+        <th>活動</th><th>每天或幾乎每天</th><th>每週數次</th><th>每月數次</th><th>每年數次</th><th>幾乎從不</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><span class="qn" style="font-size:10px">23</span> 閱讀報紙（含網路版）</td>
+          <td><input type="radio" name="lei_news" value="4"></td><td><input type="radio" name="lei_news" value="3"></td><td><input type="radio" name="lei_news" value="2"></td><td><input type="radio" name="lei_news" value="1"></td><td><input type="radio" name="lei_news" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">24</span> 閱讀書籍</td>
+          <td><input type="radio" name="lei_books" value="4"></td><td><input type="radio" name="lei_books" value="3"></td><td><input type="radio" name="lei_books" value="2"></td><td><input type="radio" name="lei_books" value="1"></td><td><input type="radio" name="lei_books" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">25</span> 棋類、桌遊、拼圖、猜謎等益智遊戲</td>
+          <td><input type="radio" name="lei_games" value="4"></td><td><input type="radio" name="lei_games" value="3"></td><td><input type="radio" name="lei_games" value="2"></td><td><input type="radio" name="lei_games" value="1"></td><td><input type="radio" name="lei_games" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">26</span> 腦力訓練（數獨、填字遊戲、記憶訓練等）</td>
+          <td><input type="radio" name="lei_brain" value="4"></td><td><input type="radio" name="lei_brain" value="3"></td><td><input type="radio" name="lei_brain" value="2"></td><td><input type="radio" name="lei_brain" value="1"></td><td><input type="radio" name="lei_brain" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">27</span> 書寫（手寫書信、日記、寫作）或撰寫電郵</td>
+          <td><input type="radio" name="lei_write" value="4"></td><td><input type="radio" name="lei_write" value="3"></td><td><input type="radio" name="lei_write" value="2"></td><td><input type="radio" name="lei_write" value="1"></td><td><input type="radio" name="lei_write" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">28</span> 工作或志工中的智識活動（解決問題、財務管理、教學等）</td>
+          <td><input type="radio" name="lei_work" value="4"></td><td><input type="radio" name="lei_work" value="3"></td><td><input type="radio" name="lei_work" value="2"></td><td><input type="radio" name="lei_work" value="1"></td><td><input type="radio" name="lei_work" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">29</span> 參觀博物館、美術館</td>
+          <td><input type="radio" name="lei_museum" value="4"></td><td><input type="radio" name="lei_museum" value="3"></td><td><input type="radio" name="lei_museum" value="2"></td><td><input type="radio" name="lei_museum" value="1"></td><td><input type="radio" name="lei_museum" value="0"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">30</span> 觀賞音樂會、戲劇或表演</td>
+          <td><input type="radio" name="lei_concert" value="4"></td><td><input type="radio" name="lei_concert" value="3"></td><td><input type="radio" name="lei_concert" value="2"></td><td><input type="radio" name="lei_concert" value="1"></td><td><input type="radio" name="lei_concert" value="0"></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(5)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(7)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 7: SOCIAL ===== -->
+<div class="section" id="sec-social">
+  <div class="section-title">第七節：社交與陪伴</div>
+  <div class="section-subtitle">以下問題詢問您的社交狀況與感受。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">31</span>您目前的<strong>居住狀況</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="soc_live" value="with_partner">與配偶或伴侶同住（二人世界）</label>
+      <label class="ro"><input type="radio" name="soc_live" value="with_family">與家人（子女、孫子女等）同住</label>
+      <label class="ro"><input type="radio" name="soc_live" value="alone">獨居</label>
+      <label class="ro"><input type="radio" name="soc_live" value="institution">住在療養機構或長照機構</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">以下問題詢問您對陪伴的主觀感受：</label>
+    <div class="likert-wrap">
+    <table class="lk">
+      <thead><tr><th>感受</th><th>幾乎不曾</th><th>有時如此</th><th>經常如此</th></tr></thead>
+      <tbody>
+        <tr><td><span class="qn" style="font-size:10px">32</span> 您感到缺乏陪伴</td>
+          <td><input type="radio" name="soc1" value="1"></td><td><input type="radio" name="soc1" value="2"></td><td><input type="radio" name="soc1" value="3"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">33</span> 您感到被排除在外、被邊緣化</td>
+          <td><input type="radio" name="soc2" value="1"></td><td><input type="radio" name="soc2" value="2"></td><td><input type="radio" name="soc2" value="3"></td>
+        </tr>
+        <tr><td><span class="qn" style="font-size:10px">34</span> 您感到與他人孤立</td>
+          <td><input type="radio" name="soc3" value="1"></td><td><input type="radio" name="soc3" value="2"></td><td><input type="radio" name="soc3" value="3"></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(6)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(8)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 8: DIET ===== -->
+<div class="section" id="sec-diet">
+  <div class="section-title">第八節：飲食習慣</div>
+  <div class="section-subtitle">以下問題評估您的飲食型態，依據 MIND 飲食（地中海-DASH 失智預防飲食）標準。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">35</span>您每週食用<strong>深色葉菜類</strong>（菠菜、地瓜葉、空心菜、萵苣等）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_leafy" value="0">每週不到 2 份</label>
+      <label class="ro"><input type="radio" name="d_leafy" value="1">每週 2–5 份</label>
+      <label class="ro"><input type="radio" name="d_leafy" value="2">每週 6 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">36</span>除深色葉菜外，您每週食用<strong>其他蔬菜</strong>的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_veg" value="0">每週不到 5 份</label>
+      <label class="ro"><input type="radio" name="d_veg" value="1">每週 5–6 份</label>
+      <label class="ro"><input type="radio" name="d_veg" value="2">每週 7 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">37</span>您每週食用<strong>莓果類</strong>（草莓、藍莓、蔓越莓等）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_berry" value="0">每週不到 1 份</label>
+      <label class="ro"><input type="radio" name="d_berry" value="1">每週 1–2 份</label>
+      <label class="ro"><input type="radio" name="d_berry" value="2">每週 2 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">38</span>您每週食用<strong>堅果類</strong>（核桃、杏仁、腰果等）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_nuts" value="0">每月不到 1 份</label>
+      <label class="ro"><input type="radio" name="d_nuts" value="1">每週 1–4 份</label>
+      <label class="ro"><input type="radio" name="d_nuts" value="2">每週 5 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">39</span>您主要使用的<strong>烹飪油</strong>是橄欖油嗎？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_olive" value="1">是，主要使用橄欖油</label>
+      <label class="ro"><input type="radio" name="d_olive" value="0">否，主要使用其他油（葵花油、豬油、奶油等）</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">40</span>您每日食用<strong>全穀類</strong>（糙米、燕麥、全麥麵包、雜糧等）的份數？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_grain" value="0">每天不到 1 份（幾乎吃精緻澱粉）</label>
+      <label class="ro"><input type="radio" name="d_grain" value="1">每天 1–2 份</label>
+      <label class="ro"><input type="radio" name="d_grain" value="2">每天 3 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">41</span>您食用<strong>非油炸魚類或海鮮</strong>的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_fish" value="0">幾乎不吃</label>
+      <label class="ro"><input type="radio" name="d_fish" value="1">每月 1–3 次</label>
+      <label class="ro"><input type="radio" name="d_fish" value="2">每週至少 1 次</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">42</span>您食用<strong>豆類</strong>（黃豆、毛豆、豆腐、鷹嘴豆等）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_beans" value="0">每週不到 1 餐</label>
+      <label class="ro"><input type="radio" name="d_beans" value="1">每週 1–3 餐</label>
+      <label class="ro"><input type="radio" name="d_beans" value="2">每週 3 餐以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">43</span>您食用<strong>禽肉</strong>（雞、鴨等，非油炸）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_poultry" value="0">每週不到 1 餐</label>
+      <label class="ro"><input type="radio" name="d_poultry" value="1">每週 1–2 餐</label>
+      <label class="ro"><input type="radio" name="d_poultry" value="2">每週 2 餐以上</label>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-subtitle">以下為需要<strong>限制</strong>的食物類型：</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">44</span>您食用<strong>紅肉及加工肉品</strong>（豬、牛、羊肉、香腸、火腿等）的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_redmeat" value="2">每週不到 4 餐（少量）</label>
+      <label class="ro"><input type="radio" name="d_redmeat" value="1">每週 4–6 餐</label>
+      <label class="ro"><input type="radio" name="d_redmeat" value="0">每週 7 餐以上（幾乎每天）</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">45</span>您每日使用<strong>奶油或人造奶油</strong>的量？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_butter" value="2">每天少於 1 湯匙（或很少使用）</label>
+      <label class="ro"><input type="radio" name="d_butter" value="1">每天 1–2 湯匙</label>
+      <label class="ro"><input type="radio" name="d_butter" value="0">每天超過 2 湯匙</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">46</span>您每週食用<strong>起司</strong>的份數？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_cheese" value="2">每週不到 1 份</label>
+      <label class="ro"><input type="radio" name="d_cheese" value="1">每週 1–6 份</label>
+      <label class="ro"><input type="radio" name="d_cheese" value="0">每週 7 份以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">47</span>您每週食用<strong>糕點、甜食、含糖飲料</strong>的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_sweets" value="2">每週不到 5 份</label>
+      <label class="ro"><input type="radio" name="d_sweets" value="1">每週 5–6 份</label>
+      <label class="ro"><input type="radio" name="d_sweets" value="0">每週 7 份以上（幾乎每天）</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">48</span>您食用<strong>油炸食品或速食</strong>的頻率？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_fried" value="2">每週不到 1 次</label>
+      <label class="ro"><input type="radio" name="d_fried" value="1">每週 1–3 次</label>
+      <label class="ro"><input type="radio" name="d_fried" value="0">每週 4 次以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">49</span>您每天喝幾杯<strong>咖啡</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_coffee" value="0">不喝咖啡</label>
+      <label class="ro"><input type="radio" name="d_coffee" value="1">每天少於 1 杯</label>
+      <label class="ro"><input type="radio" name="d_coffee" value="2">每天 1–2 杯</label>
+      <label class="ro"><input type="radio" name="d_coffee" value="3">每天 3 杯以上</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">50</span>您每天喝幾杯<strong>茶</strong>（綠茶、烏龍茶、紅茶等含咖啡因茶）？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="d_tea" value="0">不喝茶</label>
+      <label class="ro"><input type="radio" name="d_tea" value="1">每天少於 1 杯</label>
+      <label class="ro"><input type="radio" name="d_tea" value="2">每天 1–2 杯</label>
+      <label class="ro"><input type="radio" name="d_tea" value="3">每天 3 杯以上</label>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(7)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(9)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 9: SMOKING / ALCOHOL ===== -->
+<div class="section" id="sec-smoking">
+  <div class="section-title">第九節：菸酒習慣</div>
+  <div class="section-subtitle">此部分問題用於評估心血管與腦部健康相關風險。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">51</span>您的<strong>吸菸</strong>狀況？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_smoke" value="current">目前有吸菸（包含電子菸、雪茄、菸斗等）</label>
+      <label class="ro"><input type="radio" name="q_smoke" value="former">曾經吸菸，目前已戒</label>
+      <label class="ro"><input type="radio" name="q_smoke" value="never">從未吸菸</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">52</span>您飲用含酒精飲料的<strong>頻率</strong>？</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_alc_freq" value="0">從不飲酒</label>
+      <label class="ro"><input type="radio" name="q_alc_freq" value="0.25">每月一次以下</label>
+      <label class="ro"><input type="radio" name="q_alc_freq" value="0.75">每月 2–4 次</label>
+      <label class="ro"><input type="radio" name="q_alc_freq" value="2.5">每週 2–3 次</label>
+      <label class="ro"><input type="radio" name="q_alc_freq" value="5">每週 4 次以上</label>
+    </div>
+  </div>
+
+  <div class="form-group" id="alc_amount_group">
+    <label class="form-label"><span class="qn">53</span>飲酒時，一次通常喝幾份標準酒精？</label>
+    <p class="form-hint">一份標準酒精 ≈ 台灣啤酒 330mL（5%）1 罐，或紅酒 120mL，或高粱酒 30mL</p>
+    <select class="form-select" id="q_alc_amount">
+      <option value="0">不適用（不飲酒）</option>
+      <option value="1">1 份</option><option value="2">2 份</option><option value="3">3 份</option>
+      <option value="4">4 份</option><option value="5">5 份</option>
+      <option value="6">6–8 份</option><option value="10">9–12 份</option>
+      <option value="14">13 份以上</option>
+    </select>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(8)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="goSection(10)">下一節 →</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 10: ENVIRONMENT ===== -->
+<div class="section" id="sec-env">
+  <div class="section-title">第十節：環境暴露</div>
+  <div class="section-subtitle">農藥等環境毒素與失智風險有關聯。</div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">54</span>您是否曾有長期或大量接觸<strong>農藥、除草劑、殺蟲劑或薰蒸劑</strong>的經驗？（包含農業工作、噴藥作業、工廠生產等）</label>
+    <div class="radio-group">
+      <label class="ro"><input type="radio" name="q_pest" value="yes">是，曾長期或大量接觸</label>
+      <label class="ro"><input type="radio" name="q_pest" value="occasional">偶爾接觸（家庭用殺蟲劑等）</label>
+      <label class="ro"><input type="radio" name="q_pest" value="no">否，幾乎沒有接觸</label>
+      <label class="ro"><input type="radio" name="q_pest" value="dk">不確定</label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label"><span class="qn">55</span>您是否還有其他想補充的健康或生活習慣相關資訊？（選填）</label>
+    <textarea class="form-input" id="q_notes" rows="3" placeholder="如：有特殊疾病、家族史等（此欄位為選填）" style="resize:vertical"></textarea>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-secondary" onclick="goSection(9)">← 上一頁</button>
+    <button class="btn btn-primary" onclick="computeAndShowResults()">完成評估，查看結果 →</button>
+  </div>
+</div>
+
+<!-- ===== RESULTS PAGE ===== -->
+<div class="results-page" id="results-page">
+  <div class="section-title">📊 CogDrisk 評估結果</div>
+  <div class="section-subtitle" id="res-timestamp"></div>
+
+  <div id="res-risk-card"></div>
+  <div class="profile-row" id="res-profile"></div>
+  <hr class="divider">
+
+  <div style="font-weight:700;color:#1e293b;margin-bottom:10px;font-size:16px">各領域評估摘要</div>
+  <div class="domain-grid" id="res-domain-grid"></div>
+  <hr class="divider">
+
+  <div id="res-strengths"></div>
+  <div id="res-recommendations"></div>
+
+  <div class="warn-box" style="margin-top:20px">
+    ⚠️ 本工具為健康促進參考工具，<strong>不能取代醫師診斷</strong>。若您擔心認知功能，請至神經內科或記憶門診就診。
+    <br>工具改編自 CogDrisk © NeuRA &amp; UNSW Sydney。
+  </div>
+
+  <div class="btn-group no-print">
+    <button class="btn btn-secondary" onclick="goSection(10)">← 返回修改</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 列印報告</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadTextReport()">⬇ 下載文字報告</button>
+      <button class="btn btn-primary btn-sm" onclick="uploadToDrive()">☁ 上傳至 Google Drive</button>
+    </div>
+  </div>
+  <div class="upload-status" id="upload-status"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /container -->
+
+<script>
+// ─── Configuration ────────────────────────────────────────────────────────────
+const SCRIPT_URL = ''; // 填入您的 Google Apps Script Web App URL
+
+// ─── Section Navigation ───────────────────────────────────────────────────────
+const SECTION_IDS = ['intro','personal','health','sleep','mood','physical','leisure','social','diet','smoking','env'];
+let currentIdx = 0;
+
+function goSection(idx) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + SECTION_IDS[idx]).classList.add('active');
+  document.querySelector('.results-page').classList.remove('active');
+  currentIdx = idx;
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProgress() {
+  const area = document.getElementById('progressArea');
+  if (currentIdx === 0) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  const pct = (currentIdx / (SECTION_IDS.length - 1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent =
+    '第 ' + currentIdx + ' / ' + (SECTION_IDS.length - 1) + ' 節完成';
+}
+
+// ─── Auto-mark radio visual selection ────────────────────────────────────────
+document.addEventListener('change', function(e) {
+  if (e.target.type === 'radio') {
+    document.querySelectorAll('input[name="' + e.target.name + '"]').forEach(r => {
+      const ro = r.closest('.ro');
+      if (ro) ro.classList.remove('selected');
+    });
+    const ro = e.target.closest('.ro');
+    if (ro) ro.classList.add('selected');
+  }
+  // Show/hide conditional fields
+  if (e.target.name === 'q_htn') {
+    document.getElementById('htn_med_group').style.display =
+      e.target.value === 'yes' ? 'block' : 'none';
+  }
+});
+
+// ─── Helper: get radio value ─────────────────────────────────────────────────
+function rv(name) {
+  const el = document.querySelector('input[name="' + name + '"]:checked');
+  return el ? el.value : null;
+}
+function iv(id) {
+  const el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || 0) : 0;
+}
+function sv(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// ─── Scoring Functions ────────────────────────────────────────────────────────
+function calcBMI() {
+  const h = iv('q_height'), w = iv('q_weight');
+  if (!h || !w) return null;
+  const bmi = w / ((h/100) ** 2);
+  let cat;
+  if (bmi < 18.5) cat = '體重過輕';
+  else if (bmi < 24) cat = '正常範圍';
+  else if (bmi < 27) cat = '過重';
+  else cat = '肥胖';
+  return { bmi: Math.round(bmi * 10) / 10, cat, risk: bmi >= 27 };
+}
+
+function calcISI() {
+  const items = ['sl1','sl2','sl3','sl4','sl5','sl6','sl7'];
+  const total = items.reduce((s,n) => s + (parseInt(rv(n)) || 0), 0);
+  let level;
+  if (total <= 7) level = '無臨床失眠';
+  else if (total <= 14) level = '輕度失眠';
+  else if (total <= 21) level = '中度失眠';
+  else level = '重度失眠';
+  return { total, level, risk: total >= 8 };
+}
+
+function calcCESD() {
+  const pos = ['md1','md2','md3','md4','md6','md7','md9','md10'];
+  // md5 (hopeful) and md8 (happy) are already pre-reversed in HTML values
+  const all = pos.concat(['md5','md8']);
+  const total = all.reduce((s,n) => s + (parseInt(rv(n)) || 0), 0);
+  let level;
+  if (total < 10) level = '情緒良好';
+  else if (total < 16) level = '輕度憂鬱傾向';
+  else if (total < 21) level = '中度憂鬱傾向';
+  else level = '重度憂鬱傾向';
+  return { total, level, risk: total >= 10 };
+}
+
+function calcIPAQ() {
+  const vd = iv('pa_vig_days'), vm = iv('pa_vig_min');
+  const md = iv('pa_mod_days'), mm = iv('pa_mod_min');
+  const wd = iv('pa_walk_days'), wm = iv('pa_walk_min');
+  const vigMET = 8.0 * vd * vm;
+  const modMET = 4.0 * md * mm;
+  const walkMET = 3.3 * wd * wm;
+  const total = vigMET + modMET + walkMET;
+  let level;
+  const isHigh = (vd >= 3 && vm >= 20) ||
+    ((md + wd) >= 5 && (mm >= 30 || wm >= 30)) ||
+    total >= 3000;
+  if (isHigh) level = '高度活動';
+  else if (total >= 600) level = '中等活動';
+  else level = '活動不足';
+  return { total: Math.round(total), level, risk: total < 600 };
+}
+
+function calcCognitiveEngagement() {
+  const freqMap = { '4':4,'3':3,'2':2,'1':1,'0':0 };
+  const readTime = parseInt(rv('lei_read')) || 0;
+  const items = ['lei_news','lei_books','lei_games','lei_brain','lei_write','lei_work','lei_museum','lei_concert'];
+  const itemScores = items.map(n => parseInt(rv(n)) || 0);
+  const sum = readTime + itemScores.reduce((a,b)=>a+b,0);
+  const avg = sum / (items.length + 1);
+  let level;
+  if (avg >= 2.5) level = '認知活動豐富';
+  else if (avg >= 1.5) level = '認知活動中等';
+  else level = '認知活動偏低';
+  return { avg: Math.round(avg*10)/10, level, risk: avg < 1.5 };
+}
+
+function calcSocial() {
+  const s1 = parseInt(rv('soc1')) || 1;
+  const s2 = parseInt(rv('soc2')) || 1;
+  const s3 = parseInt(rv('soc3')) || 1;
+  const total = s1 + s2 + s3;
+  let level;
+  if (total <= 3) level = '社交連結良好';
+  else if (total <= 5) level = '輕度孤獨感';
+  else level = '明顯孤獨感';
+  const liveAlone = rv('soc_live') === 'alone';
+  return { total, level, liveAlone, risk: total >= 6 || (liveAlone && total >= 5) };
+}
+
+function calcMIND() {
+  // Healthy food groups (max 9 pts)
+  let s = 0;
+  const leafy = parseInt(rv('d_leafy')) || 0; s += leafy >= 2 ? 1 : leafy >= 1 ? 0.5 : 0;
+  const veg = parseInt(rv('d_veg')) || 0; s += veg >= 2 ? 1 : veg >= 1 ? 0.5 : 0;
+  const berry = parseInt(rv('d_berry')) || 0; s += berry >= 2 ? 1 : berry >= 1 ? 0.5 : 0;
+  const nuts = parseInt(rv('d_nuts')) || 0; s += nuts >= 2 ? 1 : nuts >= 1 ? 0.5 : 0;
+  s += parseInt(rv('d_olive')) || 0;
+  const grain = parseInt(rv('d_grain')) || 0; s += grain >= 2 ? 1 : grain >= 1 ? 0.5 : 0;
+  const fish = parseInt(rv('d_fish')) || 0; s += fish >= 2 ? 1 : fish >= 1 ? 0.5 : 0;
+  const beans = parseInt(rv('d_beans')) || 0; s += beans >= 2 ? 1 : beans >= 1 ? 0.5 : 0;
+  const poultry = parseInt(rv('d_poultry')) || 0; s += poultry >= 2 ? 1 : poultry >= 1 ? 0.5 : 0;
+  // Unhealthy food groups (max 5 pts)
+  s += (parseInt(rv('d_redmeat')) || 0) === 2 ? 1 : (parseInt(rv('d_redmeat'))||0) === 1 ? 0.5 : 0;
+  s += (parseInt(rv('d_butter')) || 0) === 2 ? 1 : (parseInt(rv('d_butter'))||0) === 1 ? 0.5 : 0;
+  s += (parseInt(rv('d_cheese')) || 0) === 2 ? 1 : (parseInt(rv('d_cheese'))||0) === 1 ? 0.5 : 0;
+  s += (parseInt(rv('d_sweets')) || 0) === 2 ? 1 : (parseInt(rv('d_sweets'))||0) === 1 ? 0.5 : 0;
+  s += (parseInt(rv('d_fried')) || 0) === 2 ? 1 : (parseInt(rv('d_fried'))||0) === 1 ? 0.5 : 0;
+  let level;
+  if (s >= 10) level = '飲食品質優良';
+  else if (s >= 7) level = '飲食品質尚可';
+  else level = '飲食品質需改善';
+  return { score: Math.round(s*10)/10, level, risk: s < 7 };
+}
+
+function calcVascular(bmiObj) {
+  const factors = [];
+  if (rv('q_htn') === 'yes') factors.push('高血壓');
+  if (rv('q_dm') === 'yes') factors.push('糖尿病');
+  if (rv('q_chol') === 'yes') factors.push('高膽固醇');
+  if (rv('q_stroke') === 'yes') factors.push('中風/TIA');
+  const afib = rv('q_afib');
+  if (afib && afib !== 'no' && afib !== 'dk') factors.push('心房顫動');
+  if (bmiObj && bmiObj.risk) factors.push('肥胖（BMI≥27）');
+  if (rv('q_head') === 'yes') factors.push('頭部外傷史');
+  return { factors, count: factors.length, risk: factors.length >= 2 };
+}
+
+function calcSmoke() {
+  const s = rv('q_smoke');
+  return { status: s, risk: s === 'current', label: s === 'current' ? '目前吸菸' : s === 'former' ? '已戒菸' : '從不吸菸' };
+}
+
+function calcAlcohol(gender) {
+  const freq = parseFloat(rv('q_alc_freq')) || 0;
+  const amt = iv('q_alc_amount');
+  const weekly = freq * amt;
+  const cutoff = (gender === 'female') ? 14 : 21;
+  let level;
+  if (weekly === 0) level = '不飲酒';
+  else if (weekly <= 7) level = '低度飲酒';
+  else if (weekly <= cutoff) level = '中度飲酒';
+  else level = '過量飲酒';
+  return { weekly: Math.round(weekly*10)/10, level, risk: weekly > cutoff };
+}
+
+// ─── Compute and Show Results ─────────────────────────────────────────────────
+function computeAndShowResults() {
+  const age = iv('q_age');
+  const gender = rv('q_gender');
+  const edu = sv('q_edu');
+  const bmiObj = calcBMI();
+  const isi = calcISI();
+  const cesd = calcCESD();
+  const ipaq = calcIPAQ();
+  const cog = calcCognitiveEngagement();
+  const soc = calcSocial();
+  const mind = calcMIND();
+  const vasc = calcVascular(bmiObj);
+  const smoke = calcSmoke();
+  const alc = calcAlcohol(gender);
+  const pest = rv('q_pest');
+
+  // Count major modifiable risk domains
+  let riskCount = 0;
+  if (vasc.risk) riskCount++;
+  if (isi.risk) riskCount++;
+  if (cesd.risk) riskCount++;
+  if (ipaq.risk) riskCount++;
+  if (cog.risk) riskCount++;
+  if (soc.risk) riskCount++;
+  if (mind.risk) riskCount++;
+  if (smoke.risk) riskCount++;
+  if (alc.risk) riskCount++;
+
+  let overallRisk, overallClass, overallDesc;
+  if (riskCount <= 2) {
+    overallRisk = '低風險'; overallClass = 'risk-low';
+    overallDesc = '您目前的生活型態風險因子較少，請持續維持良好習慣，定期自我監測。';
+  } else if (riskCount <= 4) {
+    overallRisk = '中等風險'; overallClass = 'risk-mod';
+    overallDesc = '您有數項可改善的風險因子。透過生活型態調整，可有效降低未來失智風險。';
+  } else {
+    overallRisk = '需要關注'; overallClass = 'risk-high';
+    overallDesc = '您有多項風險因子需要積極改善。建議與您的醫師討論，並採取系統性的生活型態改變。';
+  }
+
+  // Render results
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelector('.results-page').classList.add('active');
+  document.getElementById('progressArea').style.display = 'none';
+
+  const now = new Date();
+  document.getElementById('res-timestamp').textContent =
+    '評估時間：' + now.toLocaleDateString('zh-TW') + ' ' + now.toLocaleTimeString('zh-TW');
+
+  // Risk card
+  document.getElementById('res-risk-card').innerHTML =
+    '<div class="risk-card ' + overallClass + '">' +
+    '<div style="font-size:40px">' + (riskCount<=2?'🟢':riskCount<=4?'🟡':'🔴') + '</div>' +
+    '<div class="risk-level">整體風險評估：' + overallRisk + '</div>' +
+    '<div class="risk-desc">本次評估共發現 <strong>' + riskCount + ' 項</strong>需要關注的領域</div>' +
+    '<div class="risk-desc" style="margin-top:6px">' + overallDesc + '</div>' +
+    '</div>';
+
+  // Profile
+  const eduLabel = {'primary':'國小','junior':'國中','senior':'高中/高職','college':'專科','university':'大學','postgrad':'碩士以上'}[edu] || '未填';
+  const bmiStr = bmiObj ? (bmiObj.bmi + ' kg/m² (' + bmiObj.cat + ')') : '未計算';
+  document.getElementById('res-profile').innerHTML =
+    '<div class="profile-item">年齡：<strong>' + (age||'未填') + ' 歲</strong></div>' +
+    '<div class="profile-item">BMI：<strong>' + bmiStr + '</strong></div>' +
+    '<div class="profile-item">教育程度：<strong>' + eduLabel + '</strong></div>' +
+    '<div class="profile-item">語言能力：<strong>' + (rv('q_lang')||'未填') + ' 種</strong></div>';
+
+  // Domain cards
+  const domains = [
+    { label:'❤️ 心血管風險', val: vasc.count + ' 項因子（' + (vasc.factors.length?vasc.factors.join('、'):'無') + '）', risk: vasc.risk, caution: vasc.count===1 },
+    { label:'😴 睡眠品質', val: 'ISI=' + isi.total + '　' + isi.level, risk: isi.risk, caution: isi.total>=8&&isi.total<15 },
+    { label:'😊 情緒健康', val: 'CES-D=' + cesd.total + '　' + cesd.level, risk: cesd.risk, caution: cesd.total>=8&&cesd.total<10 },
+    { label:'🏃 體能活動', val: ipaq.total + ' MET-min/週　' + ipaq.level, risk: ipaq.risk, caution: ipaq.total>=600&&ipaq.total<900 },
+    { label:'🧩 認知活動', val: '平均頻率 ' + cog.avg + '/4　' + cog.level, risk: cog.risk, caution: cog.avg>=1.5&&cog.avg<2 },
+    { label:'👥 社交連結', val: '孤獨感分數 ' + soc.total + '/9　' + soc.level, risk: soc.risk, caution: soc.total>=4&&soc.total<6 },
+    { label:'🥦 飲食品質', val: 'MIND分數 ' + mind.score + '/14　' + mind.level, risk: mind.risk, caution: mind.score>=7&&mind.score<9 },
+    { label:'🚬 吸菸', val: smoke.label, risk: smoke.risk, caution: rv('q_smoke')==='former' },
+    { label:'🍺 飲酒', val: '每週約 ' + alc.weekly + ' 份　' + alc.level, risk: alc.risk, caution: alc.weekly>7&&!alc.risk },
+    { label:'🌿 環境暴露', val: pest==='yes'?'長期農藥接觸':pest==='occasional'?'偶爾接觸':'幾乎無暴露', risk: pest==='yes', caution: pest==='occasional' }
+  ];
+
+  document.getElementById('res-domain-grid').innerHTML = domains.map(d => {
+    const cls = d.risk ? 'dc-risk' : d.caution ? 'dc-caution' : 'dc-good';
+    const icon = d.risk ? '⚠️' : d.caution ? '⚡' : '✅';
+    return '<div class="dc ' + cls + '"><div class="dc-title">' + icon + ' ' + d.label +
+      '</div><div class="dc-value">' + d.val + '</div></div>';
+  }).join('');
+
+  // Strengths
+  const good = domains.filter(d => !d.risk && !d.caution).map(d => d.label.replace(/^.{2}/,'').trim());
+  if (good.length) {
+    document.getElementById('res-strengths').innerHTML =
+      '<div class="strength-box"><h3>✨ 您的健康優勢（維持這些好習慣！）</h3>' +
+      '<div class="tags">' + good.map(g => '<span class="tag">' + g + '</span>').join('') + '</div></div>';
+  }
+
+  // Recommendations
+  let recHTML = '<div style="font-weight:700;color:#1e293b;font-size:16px;margin-bottom:12px">📋 個人化改善建議</div>';
+  const flagged = domains.filter(d => d.risk || d.caution);
+  if (!flagged.length) {
+    recHTML += '<div class="info-box"><p>👏 所有領域均表現良好，請繼續維持目前的健康生活型態！</p></div>';
+  } else {
+    flagged.forEach(d => {
+      const cls = d.risk ? 'rec-risk' : 'rec-caution';
+      const lvlLabel = d.risk ? '需要改善' : '建議關注';
+      recHTML += '<div class="rec-block"><div class="rec-head ' + cls + '">' + d.label + '　<span style="font-size:12px;font-weight:400">' + lvlLabel + '</span></div>';
+      recHTML += '<div class="rec-body"><ul>' + getRec(d.label) + '</ul></div></div>';
+    });
+  }
+  document.getElementById('res-recommendations').innerHTML = recHTML;
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── Recommendations Content ──────────────────────────────────────────────────
+function getRec(label) {
+  const map = {
+    '心血管風險': `
+      <li>定期至家庭醫師或內科門診量血壓、血糖、血脂（建議每年至少一次）</li>
+      <li>血壓目標：收縮壓 &lt;130 mmHg（依醫師建議）；中年期高血壓尤其重要</li>
+      <li>糖尿病患者應遵醫囑規律服藥，血糖控制可降低約一半的失智風險</li>
+      <li>維持健康體重（BMI 18.5–24 kg/m²，台灣標準過重 ≥24，肥胖 ≥27）</li>
+      <li>增加富含 Omega-3 的食物：鮭魚、核桃、亞麻籽、酪梨、菠菜</li>
+      <li>減少飽和脂肪（炸雞、豬油）和反式脂肪（人造奶油、糕點）</li>
+      <li>有中風史者應積極控制血壓、血糖、血脂及抗血小板治療</li>`,
+    '睡眠品質': `
+      <li>維持規律作息：每天相同時間起床、就寢（包含週末）</li>
+      <li>建立睡前放鬆儀式：避免睡前 1 小時看手機、強光刺激</li>
+      <li>睡前 4–6 小時避免咖啡因；睡前不飲酒（酒精會破壞深層睡眠）</li>
+      <li>臥室保持涼爽（約 18–22°C）、黑暗、安靜</li>
+      <li>若有持續失眠問題，<strong>認知行為治療（CBT-I）</strong>為一線治療，效果優於安眠藥</li>
+      <li>可與家庭醫師或身心科討論是否需要睡眠評估</li>`,
+    '情緒健康': `
+      <li>規律運動是改善情緒最有效的非藥物方法之一</li>
+      <li>增加社交連結：參加社區活動、宗教團體、志工服務</li>
+      <li>練習正念冥想、放鬆技巧，有助管理壓力與焦慮</li>
+      <li>若情緒低落持續超過兩週，請至家庭醫師、神經科或身心科就診</li>
+      <li>台灣安心專線：<strong>1925</strong>（24 小時免費）</li>`,
+    '體能活動': `
+      <li>目標：每週 <strong>≥150 分鐘中等強度</strong>有氧活動（如健走、游泳、騎車）</li>
+      <li>或每週 <strong>≥75 分鐘高強度</strong>活動（慢跑、有氧舞蹈）</li>
+      <li>無法一次運動 30 分鐘？可分三次各 10 分鐘累積，同樣有效！</li>
+      <li><strong>有氧 + 肌力訓練</strong>組合對認知健康的效益最大</li>
+      <li>建議活動：快走、游泳、太極拳、瑜伽、騎自行車、園藝</li>
+      <li>設定現實目標，找同伴一起運動，提高持續動力</li>
+      <li>運動可維持大腦 600 公里血管健康，促進神經細胞生長</li>`,
+    '認知活動': `
+      <li>每天保持閱讀習慣：報紙、書籍、雜誌或網路文章</li>
+      <li>定期參與益智活動：棋類、麻將、數獨、填字遊戲、拼圖</li>
+      <li>學習新技能：語言、樂器、書法、烹飪——挑戰大腦最重要</li>
+      <li>參加社區課程、老人大學、社區大學的講座或課程</li>
+      <li>志工服務兼具社交與認知刺激雙重效益</li>
+      <li>多語言能力是大腦的重要保護因子，鼓勵持續使用多種語言</li>`,
+    '社交連結': `
+      <li>主動安排定期與家人、朋友聚會或聯絡（每週至少一次）</li>
+      <li>參加社區活動、宗教聚會、志工組織或興趣社團</li>
+      <li>若獨居，可考慮日間活動中心或社區據點等資源</li>
+      <li>電話、視訊聯絡亦有助於維持社交連結</li>
+      <li>社交孤立與失智風險增加 60% 相關，社交活動對大腦健康至關重要</li>`,
+    '飲食品質': `
+      <li>增加<strong>深色葉菜類</strong>（菠菜、地瓜葉）：目標每週 ≥6 份</li>
+      <li>每週至少吃 2 次莓果類（藍莓、草莓）；若不易取得可改紫葡萄、桑椹</li>
+      <li>每週至少 1 次非油炸魚類（富含 Omega-3 脂肪酸）</li>
+      <li>以全穀雜糧（糙米、燕麥、地瓜）替代白米飯和白麵包</li>
+      <li>限制紅肉（每週 &lt;4 餐）、加工肉品、奶油、起司</li>
+      <li>採用<strong>MIND 飲食</strong>（地中海-DASH 組合）可降低 53% 的阿茲海默症風險</li>
+      <li>可考慮以橄欖油或芥花油取代豬油、人造奶油</li>`,
+    '吸菸': `
+      <li><strong>任何年齡戒菸都能降低失智風險</strong>——戒菸後腦細胞死亡速度即減緩</li>
+      <li>吸菸者失智風險約為不吸菸者的 <strong>1.5–2 倍</strong></li>
+      <li>請至家庭醫師或戒菸門診諮詢，健保有提供戒菸衛教及用藥補助</li>
+      <li>台灣戒菸專線：<strong>0800-636363</strong></li>`,
+    '飲酒': `
+      <li>建議每日飲酒 <strong>≤1 份標準酒精</strong>（女性）或 <strong>≤2 份</strong>（男性）</li>
+      <li>一週最好有 2–3 天完全不飲酒</li>
+      <li>酒精是腦細胞毒素，長期過量飲酒直接損傷腦部</li>
+      <li>過量飲酒亦增加高血壓、肝病和跌倒風險</li>`,
+    '環境暴露': `
+      <li>農藥、有機溶劑等環境毒素可能增加神經退化風險</li>
+      <li>進行農藥作業時請使用防護設備（手套、口罩、護目鏡）</li>
+      <li>農業工作者建議定期健康檢查，注意神經系統症狀</li>`
+  };
+  const key = Object.keys(map).find(k => label.includes(k));
+  return key ? map[key] : '<li>請與醫師進一步討論此風險因子的管理策略。</li>';
+}
+
+// ─── Download Text Report ─────────────────────────────────────────────────────
+function downloadTextReport() {
+  const now = new Date().toLocaleString('zh-TW');
+  let txt = '==============================================\n';
+  txt += 'CogDrisk 失智風險評估報告（繁體中文版 v1.0-TW）\n';
+  txt += '評估時間：' + now + '\n';
+  txt += '==============================================\n\n';
+
+  const bmiObj = calcBMI();
+  const isi = calcISI();
+  const cesd = calcCESD();
+  const ipaq = calcIPAQ();
+  const cog = calcCognitiveEngagement();
+  const soc = calcSocial();
+  const mind = calcMIND();
+  const vasc = calcVascular(bmiObj);
+  const smoke = calcSmoke();
+  const alc = calcAlcohol(rv('q_gender'));
+
+  txt += '【個人基本資料】\n';
+  txt += '年齡：' + (iv('q_age')||'未填') + ' 歲\n';
+  txt += 'BMI：' + (bmiObj ? bmiObj.bmi + ' kg/m² (' + bmiObj.cat + ')' : '未計算') + '\n\n';
+
+  txt += '【各領域評估結果】\n';
+  txt += '❤️ 心血管風險：' + vasc.count + ' 項因子（' + (vasc.factors.join('、')||'無') + '）　' + (vasc.risk?'⚠️ 需關注':'✅') + '\n';
+  txt += '😴 睡眠品質（ISI）：' + isi.total + ' 分　' + isi.level + '　' + (isi.risk?'⚠️':'✅') + '\n';
+  txt += '😊 情緒健康（CES-D）：' + cesd.total + ' 分　' + cesd.level + '　' + (cesd.risk?'⚠️':'✅') + '\n';
+  txt += '🏃 體能活動（IPAQ）：' + ipaq.total + ' MET-min/週　' + ipaq.level + '　' + (ipaq.risk?'⚠️':'✅') + '\n';
+  txt += '🧩 認知活動：平均 ' + cog.avg + '/4　' + cog.level + '　' + (cog.risk?'⚠️':'✅') + '\n';
+  txt += '👥 社交連結（UCLA-3）：' + soc.total + '/9　' + soc.level + '　' + (soc.risk?'⚠️':'✅') + '\n';
+  txt += '🥦 飲食品質（MIND）：' + mind.score + '/14　' + mind.level + '　' + (mind.risk?'⚠️':'✅') + '\n';
+  txt += '🚬 吸菸狀況：' + smoke.label + '　' + (smoke.risk?'⚠️':'✅') + '\n';
+  txt += '🍺 飲酒：每週 ' + alc.weekly + ' 份　' + alc.level + '　' + (alc.risk?'⚠️':'✅') + '\n\n';
+
+  txt += '【注意事項】\n';
+  txt += '本報告僅供健康促進參考，不能取代醫師診斷。\n';
+  txt += '改編自 CogDrisk © NeuRA & UNSW Sydney。\n';
+
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CogDrisk評估報告_' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+}
+
+// ─── Google Drive Upload ──────────────────────────────────────────────────────
+function uploadToDrive() {
+  const statusEl = document.getElementById('upload-status');
+  if (!SCRIPT_URL) {
+    statusEl.className = 'upload-status us-err';
+    statusEl.style.display = 'block';
+    statusEl.textContent = '❌ 尚未設定 Google Apps Script URL（請在 HTML 中填入 SCRIPT_URL）';
+    return;
+  }
+
+  const bmiObj = calcBMI();
+  const payload = {
+    tool: 'CogDrisk-TW', version: '1.0-TW',
+    timestamp: new Date().toISOString(),
+    age: iv('q_age'), gender: rv('q_gender'),
+    edu: sv('q_edu'),
+    bmi: bmiObj ? bmiObj.bmi : null,
+    isi: calcISI().total,
+    cesd: calcCESD().total,
+    ipaq_met: calcIPAQ().total,
+    mind_score: calcMIND().score,
+    social_total: calcSocial().total,
+    smoke: rv('q_smoke'),
+    alc_weekly: calcAlcohol(rv('q_gender')).weekly,
+    vasc_factors: calcVascular(bmiObj).factors,
+    raw: {
+      q_htn: rv('q_htn'), q_dm: rv('q_dm'), q_chol: rv('q_chol'),
+      q_stroke: rv('q_stroke'), q_afib: rv('q_afib'),
+      q_pest: rv('q_pest')
+    }
+  };
+
+  statusEl.className = 'upload-status us-pend';
+  statusEl.style.display = 'block';
+  statusEl.textContent = '⏳ 上傳中…';
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).then(() => {
+    statusEl.className = 'upload-status us-ok';
+    statusEl.textContent = '✅ 資料已成功上傳至 Google Drive！';
+  }).catch(() => {
+    statusEl.className = 'upload-status us-err';
+    statusEl.textContent = '❌ 上傳失敗，請檢查網路連線或 Script URL 設定。';
+  });
+}
+</script>
+</body>
+</html>
