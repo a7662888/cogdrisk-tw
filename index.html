@@ -862,11 +862,13 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   </div>
 
   <div class="btn-group no-print">
-    <button class="btn btn-secondary" onclick="goSection(10)">← 返回修改</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="goSection(1)">← 返回修改</button>
+      <button class="btn btn-outline" onclick="resetAll()">🔄 重新評估</button>
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 列印報告</button>
       <button class="btn btn-outline btn-sm" onclick="downloadTextReport()">⬇ 下載文字報告</button>
-      <button class="btn btn-primary btn-sm" onclick="uploadToDrive()">☁ 上傳至 Google Drive</button>
     </div>
   </div>
   <div class="upload-status" id="upload-status"></div>
@@ -877,7 +879,7 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
 
 <script>
 // ─── Configuration ────────────────────────────────────────────────────────────
-const SCRIPT_URL = ''; // 填入您的 Google Apps Script Web App URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3uS2wMJkXhrRnqrmzYoA_5-DpfHT0atHGZR0203WjDNzkAMpddbdtqXXv8sggWfMq/exec';
 
 // ─── Section Navigation ───────────────────────────────────────────────────────
 const SECTION_IDS = ['intro','personal','health','sleep','mood','physical','leisure','social','diet','smoking','env'];
@@ -1183,6 +1185,9 @@ function computeAndShowResults() {
   }
   document.getElementById('res-recommendations').innerHTML = recHTML;
 
+  // 自動靜默上傳（no-cors，不阻塞 UI）
+  silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc);
+
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1303,54 +1308,60 @@ function downloadTextReport() {
   a.click();
 }
 
-// ─── Google Drive Upload ──────────────────────────────────────────────────────
-function uploadToDrive() {
-  const statusEl = document.getElementById('upload-status');
-  if (!SCRIPT_URL) {
-    statusEl.className = 'upload-status us-err';
-    statusEl.style.display = 'block';
-    statusEl.textContent = '❌ 尚未設定 Google Apps Script URL（請在 HTML 中填入 SCRIPT_URL）';
-    return;
-  }
-
-  const bmiObj = calcBMI();
+// ─── Auto Google Drive Upload（結果顯示後靜默觸發）────────────────────────────
+function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc) {
+  if (!SCRIPT_URL) return;
   const payload = {
     tool: 'CogDrisk-TW', version: '1.0-TW',
     timestamp: new Date().toISOString(),
-    age: iv('q_age'), gender: rv('q_gender'),
-    edu: sv('q_edu'),
+    age: iv('q_age'), gender: rv('q_gender'), edu: sv('q_edu'),
     bmi: bmiObj ? bmiObj.bmi : null,
-    isi: calcISI().total,
-    cesd: calcCESD().total,
-    ipaq_met: calcIPAQ().total,
-    mind_score: calcMIND().score,
-    social_total: calcSocial().total,
-    smoke: rv('q_smoke'),
-    alc_weekly: calcAlcohol(rv('q_gender')).weekly,
-    vasc_factors: calcVascular(bmiObj).factors,
+    bmi_cat: bmiObj ? bmiObj.cat : null,
+    isi_total: isi.total, isi_level: isi.level,
+    cesd_total: cesd.total, cesd_level: cesd.level,
+    ipaq_met: ipaq.total, ipaq_level: ipaq.level,
+    mind_score: mind.score, mind_level: mind.level,
+    social_total: soc.total, social_level: soc.level,
+    smoke_status: smoke.status,
+    alc_weekly: alc.weekly, alc_level: alc.level,
+    vasc_count: vasc.count, vasc_factors: vasc.factors.join('|'),
+    pest: rv('q_pest'),
+    notes: sv('q_notes'),
     raw: {
-      q_htn: rv('q_htn'), q_dm: rv('q_dm'), q_chol: rv('q_chol'),
-      q_stroke: rv('q_stroke'), q_afib: rv('q_afib'),
-      q_pest: rv('q_pest')
+      q_htn: rv('q_htn'), q_htn_med: rv('q_htn_med'),
+      q_dm: rv('q_dm'), q_chol: rv('q_chol'),
+      q_stroke: rv('q_stroke'), q_afib: rv('q_afib'), q_head: rv('q_head')
     }
   };
-
-  statusEl.className = 'upload-status us-pend';
-  statusEl.style.display = 'block';
-  statusEl.textContent = '⏳ 上傳中…';
-
   fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
+    method: 'POST', mode: 'no-cors',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(payload)
-  }).then(() => {
-    statusEl.className = 'upload-status us-ok';
-    statusEl.textContent = '✅ 資料已成功上傳至 Google Drive！';
-  }).catch(() => {
-    statusEl.className = 'upload-status us-err';
-    statusEl.textContent = '❌ 上傳失敗，請檢查網路連線或 Script URL 設定。';
+  }).catch(() => {}); // 靜默失敗，不打擾使用者
+}
+
+// ─── Reset / 重新評估 ─────────────────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('確定要清除所有填答內容，重新開始嗎？')) return;
+  // Clear all radio selections
+  document.querySelectorAll('input[type=radio]').forEach(r => {
+    r.checked = false;
+    const ro = r.closest('.ro');
+    if (ro) ro.classList.remove('selected');
   });
+  // Clear all selects
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  // Clear all text inputs (except keep select default)
+  ['q_age','q_height','q_weight','q_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Hide conditional fields
+  document.getElementById('htn_med_group').style.display = 'none';
+  // Hide results, show intro
+  document.querySelector('.results-page').classList.remove('active');
+  document.getElementById('upload-status').style.display = 'none';
+  goSection(0);
 }
 </script>
 </body>
