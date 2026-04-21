@@ -116,6 +116,33 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
 .score-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:11px}
 .score-legend span{display:flex;align-items:center;gap:3px}
 .score-legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+/* CAIDE Supplement */
+.caide-wrap{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:20px;margin-top:20px}
+.caide-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.caide-header h3{font-size:16px;font-weight:700;color:#5b21b6;margin:0}
+.caide-badge{background:#7c3aed;color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px}
+.caide-desc{font-size:13px;color:#5b21b6;margin-bottom:16px;opacity:.85}
+.caide-q{margin-bottom:14px}
+.caide-q .form-label{color:#3b0764;font-size:14px}
+.caide-q .ro{border-color:#ddd8fe}
+.caide-q .ro:hover,.caide-q .ro.selected{border-color:#7c3aed;background:#ede9fe}
+.caide-result-card{border-radius:12px;padding:16px;margin-top:16px}
+.caide-low{background:#f0fdf4;border:2px solid #86efac}
+.caide-mod{background:#fffbeb;border:2px solid #fcd34d}
+.caide-high{background:#fff7ed;border:2px solid #fdba74}
+.caide-vhigh{background:#fef2f2;border:2px solid #fca5a5}
+.caide-score-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.caide-pct{font-size:36px;font-weight:700}
+.caide-low .caide-pct{color:#16a34a}
+.caide-mod .caide-pct{color:#d97706}
+.caide-high .caide-pct{color:#ea580c}
+.caide-vhigh .caide-pct{color:#dc2626}
+.caide-note{font-size:12px;color:#64748b;margin-top:8px;line-height:1.5}
+.caide-breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.caide-item{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:3px 10px;font-size:11px;color:#374151}
+.caide-item.scored{border-color:#7c3aed;color:#5b21b6;background:#ede9fe}
+.caide-unknown{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px;font-size:13px;color:#9a3412;margin-top:10px}
+
 
 .divider{border:none;border-top:2px solid #e2e8f0;margin:24px 0}
 .profile-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
@@ -141,7 +168,7 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   <h1>🧠 CogDrisk 失智風險評估工具</h1>
   <p>繁體中文版 | 社區版認知健康與失智風險因子評估</p>
   <div style="margin-top:10px">
-    <span class="badge badge-y">v1.0-TW</span>
+    <span class="badge badge-y">v1.1-TW</span>
     <span class="badge badge-c">社區使用</span>
     <span class="badge badge-g">免費工具</span>
   </div>
@@ -867,6 +894,48 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   <div id="res-risk-card"></div>
   <div id="res-age-group"></div>
   <div class="score-dual" id="res-composite-scores"></div>
+
+  <!-- ===== CAIDE SUPPLEMENT (midlife only, rendered by JS) ===== -->
+  <div id="caide-supplement" style="display:none">
+    <div class="caide-wrap">
+      <div class="caide-header">
+        <h3>📐 CAIDE 20 年失智風險估算</h3>
+        <span class="caide-badge">中年期專用</span>
+      </div>
+      <p class="caide-desc">
+        CAIDE 量表（Kivipelto et al., <em>Lancet Neurol</em> 2006）是目前唯一可輸出<strong>20 年絕對風險 %</strong> 的驗證工具。<br>
+        您的年齡、教育、性別、BMI、體能活動已自動帶入，僅需補充下列 2 個資訊：
+      </p>
+
+      <div class="caide-q form-group">
+        <label class="form-label">🩺 您最近一次量測的<strong>收縮壓（血壓上壓）</strong>大約為多少？</label>
+        <p class="form-hint">若有服藥控制，請填寫<u>目前用藥中的血壓值</u>；若未量過可選「不知道」</p>
+        <div class="radio-group">
+          <label class="ro"><input type="radio" name="c_sbp" value="low">≤ 130 mmHg（正常）</label>
+          <label class="ro"><input type="radio" name="c_sbp" value="border">131–140 mmHg（偏高）</label>
+          <label class="ro"><input type="radio" name="c_sbp" value="high">&gt; 140 mmHg（高血壓範圍）</label>
+          <label class="ro"><input type="radio" name="c_sbp" value="dk">不知道 / 未量過</label>
+        </div>
+      </div>
+
+      <div class="caide-q form-group">
+        <label class="form-label">🧪 您最近血液檢查的<strong>總膽固醇（TC）</strong>大約為多少？</label>
+        <p class="form-hint">1 mmol/L ≈ 38.7 mg/dL；正常上限 200 mg/dL ≈ 5.2 mmol/L；CAIDE 切點 6.5 mmol/L ≈ 251 mg/dL</p>
+        <div class="radio-group">
+          <label class="ro"><input type="radio" name="c_chol" value="normal">≤ 200 mg/dL（正常）</label>
+          <label class="ro"><input type="radio" name="c_chol" value="border">201–250 mg/dL（偏高）</label>
+          <label class="ro"><input type="radio" name="c_chol" value="high">&gt; 250 mg/dL（高膽固醇）</label>
+          <label class="ro"><input type="radio" name="c_chol" value="dk">不知道 / 未量過</label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"
+              onclick="calcAndShowCAIDE()">計算 CAIDE 20 年風險 →</button>
+
+      <div id="caide-result"></div>
+    </div>
+  </div>
+
   <div class="profile-row" id="res-profile"></div>
   <hr class="divider">
 
@@ -1268,6 +1337,10 @@ function computeAndShowResults() {
   document.getElementById('res-age-group').innerHTML =
     '<div class="age-group-badge ' + comp.ageGroupClass + '">評估期別：' + comp.ageGroup + '</div>';
 
+
+  // Show CAIDE supplement for midlife only
+  document.getElementById('caide-supplement').style.display = comp.isMidlife ? 'block' : 'none';
+  document.getElementById('caide-result').innerHTML = '';  // reset on re-run
   // Dual score bars
   function barHTML(title, icon, disp, raw, risk) {
     var pct = Math.round(disp * 2) + '%';
@@ -1463,6 +1536,21 @@ function downloadTextReport() {
   txt += '任何失智 複合分數：' + comp2.anyDemDisplay + ' / 50　（原始分：' + (comp2.anyDemRaw >= 0 ? '+' : '') + comp2.anyDemRaw + '）　' + comp2.anyDemRisk.label + '\n';
   txt += '阿茲海默症 複合分數：' + comp2.adDisplay + ' / 50　（原始分：' + (comp2.adRaw >= 0 ? '+' : '') + comp2.adRaw + '）　' + comp2.adRisk.label + '\n';
   txt += '評分說明：顯示分 = 原始分 + 15，上限 50；<10 低風險，10-17 中等，18-24 偏高，>=25 高\n\n';
+  // Append CAIDE result if user calculated it
+  var caideCard = document.getElementById('caide-result');
+  if (caideCard && caideCard.innerHTML.trim() !== '') {
+    var sbpLabel = {low:'≤130',border:'131-140',high:'>140',dk:'不知道'}[rv('c_sbp')] || '未填';
+    var cholLabel = {normal:'≤200',border:'201-250',high:'>250',dk:'不知道'}[rv('c_chol')] || '未填';
+    // Extract displayed % from DOM
+    var pctEl = caideCard.querySelector('.caide-pct');
+    var scoreEl = caideCard.querySelector('strong');
+    txt += '【CAIDE 20 年失智風險（Kivipelto et al. 2006）】\n';
+    txt += '收縮壓輸入：' + sbpLabel + ' mmHg\n';
+    txt += '總膽固醇輸入：' + cholLabel + ' mg/dL\n';
+    txt += '20 年絕對風險：' + (pctEl ? pctEl.textContent : '—') + '%\n';
+    txt += 'CAIDE 分數：' + (scoreEl ? scoreEl.textContent : '—') + '\n';
+    txt += '來源：基於芬蘭 CAIDE 族群，台灣適用性仍待校正。\n\n';
+  }
   txt += '【注意事項】\n';
   txt += '本報告僅供健康促進參考，不能取代醫師診斷。\n';
   txt += '改編自 CogDrisk © NeuRA & UNSW Sydney。\n';
@@ -1513,6 +1601,109 @@ function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp
   }).catch(() => {}); // 靜默失敗，不打擾使用者
 }
 
+// ─── CAIDE 20-year Dementia Risk (Kivipelto et al. 2006, Lancet Neurol) ─────────
+function calcAndShowCAIDE() {
+  var age    = iv('q_age');
+  var gender = rv('q_gender');
+  var edu    = sv('q_edu');
+  var bmiObj = calcBMI();
+  var ipaq   = calcIPAQ();
+
+  // Age points (midlife bins)
+  var agePts = age <= 46 ? 0 : age <= 53 ? 3 : 4;
+
+  // Education points
+  var eduYrs = {primary:6,junior:9,senior:12,college:14,university:16,postgrad:18};
+  var yrs = eduYrs[edu] || 12;
+  var eduPts = yrs <= 6 ? 3 : yrs <= 9 ? 2 : 0;
+
+  // Sex points (male=1)
+  var sexPts = gender === 'male' ? 1 : 0;
+
+  // BMI (CAIDE uses WHO 30 cutoff)
+  var bmi = bmiObj ? bmiObj.bmi : null;
+  var bmiPts = (bmi && bmi > 30) ? 2 : 0;
+  var bmiNote = (bmi && bmi > 27 && bmi <= 30)
+    ? '（注意：BMI ' + bmi + ' 依台灣標準已屬肥胖，但 CAIDE 原始算法切點為 30，此處從原始算法）'
+    : '';
+
+  // Physical inactivity (IPAQ <600 = inactive)
+  var inactPts = (ipaq.level === '活動不足') ? 1 : 0;
+
+  // SBP (user input)
+  var sbpVal = rv('c_sbp');
+  var sbpPts = 0, sbpUnknown = false;
+  if (sbpVal === 'high') sbpPts = 2;
+  else if (sbpVal === 'border') sbpPts = 0;  // ≤140 = 0
+  else if (!sbpVal || sbpVal === 'dk') sbpUnknown = true;
+
+  // Cholesterol (user input; CAIDE cutoff 6.5 mmol/L ≈ 251 mg/dL)
+  var cholVal = rv('c_chol');
+  var cholPts = 0, cholUnknown = false;
+  if (cholVal === 'high') cholPts = 1;
+  else if (!cholVal || cholVal === 'dk') cholUnknown = true;
+
+  var total = agePts + eduPts + sexPts + bmiPts + inactPts + sbpPts + cholPts;
+
+  // Risk lookup table
+  function riskPct(s) {
+    if (s <= 5)  return { pct:'1.0',  tier:'低風險', cls:'caide-low',  desc:'與同齡人相比，20年內發展為失智症的風險較低。' };
+    if (s <= 7)  return { pct:'1.9',  tier:'低至中', cls:'caide-mod',  desc:'風險略高於基線，積極維持健康生活型態有助於降低風險。' };
+    if (s <= 9)  return { pct:'4.2',  tier:'中等風險', cls:'caide-mod', desc:'約每25人中有1位會在20年內發展為失智症，生活型態改善效益顯著。' };
+    if (s <= 11) return { pct:'7.4',  tier:'中高風險', cls:'caide-high', desc:'約每14人中有1位，建議積極與醫師討論可改變的風險因子。' };
+    return               { pct:'16.4', tier:'高風險',  cls:'caide-vhigh', desc:'約每6人中有1位，強烈建議與神經內科或記憶門診醫師進行詳細評估。' };
+  }
+
+  var risk = riskPct(total);
+
+  // Build factor breakdown display
+  var factors = [
+    { label:'年齡 (' + age + '歲)', pts: agePts },
+    { label:'教育 (' + yrs + '年)', pts: eduPts },
+    { label:'性別', pts: sexPts },
+    { label:'BMI (' + (bmi||'?') + ')', pts: bmiPts },
+    { label:'體能活動', pts: inactPts },
+    { label:'收縮壓', pts: sbpUnknown ? '?' : sbpPts },
+    { label:'總膽固醇', pts: cholUnknown ? '?' : cholPts }
+  ];
+
+  var breakdown = factors.map(function(f) {
+    var scored = f.pts !== 0 && f.pts !== '?';
+    var text = f.label + (f.pts !== 0 && f.pts !== '?' ? ' ＋' + f.pts : f.pts === '?' ? ' ?' : '');
+    return '<span class="caide-item' + (scored ? ' scored' : '') + '">' + text + '</span>';
+  }).join('');
+
+  var unknownNote = '';
+  if (sbpUnknown || cholUnknown) {
+    var missing = [];
+    if (sbpUnknown)   missing.push('收縮壓（最多影響 +2 分）');
+    if (cholUnknown)  missing.push('總膽固醇（最多影響 +1 分）');
+    unknownNote = '<div class="caide-unknown">⚠️ 以下資訊未填或不知道，以 0 計算（偏保守低估）：' + missing.join('、') + '</div>';
+  }
+
+  var html2 = '<div class="caide-result-card ' + risk.cls + '">' +
+    '<div class="caide-score-row">' +
+      '<span class="caide-pct">' + risk.pct + '%</span>' +
+      '<span style="font-size:16px;font-weight:600;color:#374151">20 年失智症絕對風險</span>' +
+    '</div>' +
+    '<div style="font-size:15px;font-weight:700;margin-bottom:6px">' + risk.tier + '　CAIDE 分數：<strong>' + total + ' / 15</strong></div>' +
+    '<div style="font-size:13px;color:#374151;margin-bottom:10px">' + risk.desc + '</div>' +
+    '<div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:6px">各項因子貢獻：</div>' +
+    '<div class="caide-breakdown">' + breakdown + '</div>' +
+    unknownNote +
+    (bmiNote ? '<div style="font-size:11px;color:#92400e;margin-top:8px">' + bmiNote + '</div>' : '') +
+    '<div class="caide-note">' +
+      '📚 資料來源：Kivipelto M et al. (2006). Risk score for the prediction of dementia risk in 20 years among middle aged people. <em>Lancet Neurology</em>, 5(9), 735–741.<br>' +
+      '⚠️ 本估算基於芬蘭中年族群資料，台灣族群需校正後方可直接套用，結果僅供參考。' +
+    '</div>' +
+  '</div>';
+
+  document.getElementById('caide-result').innerHTML = html2;
+
+  // Scroll to result
+  document.getElementById('caide-result').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
 // ─── Reset / 重新評估 ─────────────────────────────────────────────────────────
 function resetAll() {
   if (!confirm('確定要清除所有填答內容，重新開始嗎？')) return;
@@ -1531,6 +1722,9 @@ function resetAll() {
   });
   // Hide conditional fields
   document.getElementById('htn_med_group').style.display = 'none';
+  // Reset CAIDE supplement
+  document.getElementById('caide-supplement').style.display = 'none';
+  document.getElementById('caide-result').innerHTML = '';
   // Hide results, show intro
   document.querySelector('.results-page').classList.remove('active');
   document.getElementById('upload-status').style.display = 'none';
