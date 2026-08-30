@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>CogDrisk 失智風險評估工具 繁體中文版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -169,7 +171,7 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   <p>繁體中文版 | 社區版認知健康與失智風險因子評估</p>
   <div style="margin-top:10px">
     <span class="badge badge-y">v1.1-TW</span>
-    <span class="badge badge-c">社區使用</span>
+    <span class="badge badge-c">非診斷工具</span>
     <span class="badge badge-g">免費工具</span>
   </div>
 </div>
@@ -184,13 +186,13 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   <div class="section-title">歡迎使用 CogDrisk 失智風險評估工具</div>
   <div class="info-box">
     <h3>📋 關於本工具</h3>
-    <p>本工具改編自澳洲神經科學研究所（NeuRA）與新南威爾斯大學（UNSW Sydney）共同開發之 <strong>CogDrisk</strong>，專為台灣社區民眾設計，協助您了解個人與失智症相關的生活型態風險因子。</p>
+    <p>本工具改編自澳洲神經科學研究所（NeuRA）與新南威爾斯大學（UNSW Sydney）共同開發之 <strong>CogDrisk</strong>，提供台灣繁體中文介面，協助您了解與失智症相關的生活型態風險因子。此版本尚未完成台灣族群的臨床效度校正。</p>
     <br>
     <ul>
-      <li>問卷共約 <strong>55 題</strong>，需時約 <strong>10–15 分鐘</strong></li>
+      <li>問卷共約 <strong>54 題</strong>，需時約 <strong>10–15 分鐘</strong></li>
       <li>涵蓋：健康狀況、睡眠、情緒、體能活動、認知刺激、社交、飲食、菸酒習慣</li>
       <li>完成後立即顯示各領域評估結果與個人化建議</li>
-      <li>資料可選擇上傳至雲端供後續追蹤（需設定）</li>
+      <li>所有計算都在目前的瀏覽器分頁內完成，不會上傳填答內容</li>
     </ul>
   </div>
   <div class="warn-box">
@@ -198,7 +200,7 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
   </div>
   <div class="info-box">
     <h3>🔒 隱私保護</h3>
-    <p>本工具為純前端運算，資料不會自動傳送至任何第三方伺服器。如選擇上傳，資料將傳送至您指定的 Google Drive。</p>
+    <p>本工具不使用 Cookie、分析服務或雲端儲存；您填寫的健康資訊只保留在目前分頁的記憶體中，重新整理、關閉分頁或按「重新評估」即會清除。若下載或列印報告，檔案會留在您選擇的裝置或印表機，請避免使用共用裝置保存敏感資料。</p>
   </div>
   <div class="btn-group">
     <div></div>
@@ -208,8 +210,8 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
 
 <!-- ===== SECTION 1: PERSONAL INFO ===== -->
 <div class="section" id="sec-personal">
-  <div class="section-title">第一節：個人基本資料</div>
-  <div class="section-subtitle">請填寫您的基本個人資料，以利後續評估計算。</div>
+  <div class="section-title">第一節：評估必要資料</div>
+  <div class="section-subtitle">以下資料只用於本機計算，不會傳送或儲存至伺服器。</div>
 
   <div class="form-group">
     <label class="form-label"><span class="qn">1</span>您目前的年齡？（歲）</label>
@@ -875,11 +877,6 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
     </div>
   </div>
 
-  <div class="form-group">
-    <label class="form-label"><span class="qn">55</span>您是否還有其他想補充的健康或生活習慣相關資訊？（選填）</label>
-    <textarea class="form-input" id="q_notes" rows="3" placeholder="如：有特殊疾病、家族史等（此欄位為選填）" style="resize:vertical"></textarea>
-  </div>
-
   <div class="btn-group">
     <button class="btn btn-secondary" onclick="goSection(9)">← 上一頁</button>
     <button class="btn btn-primary" onclick="computeAndShowResults()">完成評估，查看結果 →</button>
@@ -903,7 +900,7 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
         <span class="caide-badge">中年期專用</span>
       </div>
       <p class="caide-desc">
-        CAIDE 量表（Kivipelto et al., <em>Lancet Neurol</em> 2006）是目前唯一可輸出<strong>20 年絕對風險 %</strong> 的驗證工具。<br>
+        CAIDE 量表（Kivipelto et al., <em>Lancet Neurol</em> 2006）可依原始芬蘭中年族群模型估算<strong>20 年絕對風險 %</strong>；此數值未經台灣族群校正，不代表個人診斷或確定預後。<br>
         您的年齡、教育、性別、BMI、體能活動已自動帶入，僅需補充下列 2 個資訊：
       </p>
 
@@ -951,6 +948,11 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
     <br>工具改編自 CogDrisk © NeuRA &amp; UNSW Sydney。
   </div>
 
+  <div class="info-box">
+    <h3>🔒 本次資料如何處理</h3>
+    <p>結果僅在此分頁內計算與顯示，不會上傳或保存在本網站。請在共用裝置上使用完畢後按「重新評估」或關閉分頁；下載與列印的副本由您自行保管。</p>
+  </div>
+
   <div class="btn-group no-print">
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-secondary" onclick="goSection(1)">← 返回修改</button>
@@ -959,8 +961,11 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 列印報告</button>
       <button class="btn btn-outline btn-sm" onclick="downloadTextReport()">⬇ 下載文字報告</button>
+      <button class="btn btn-outline btn-sm" onclick="exportJSON()">💾 匯出 JSON</button>
+      <button class="btn btn-outline btn-sm" onclick="exportMasterTable()">📊 匯出主表 (Excel)</button>
     </div>
   </div>
+  <div id="record-count" style="display:none;margin-top:8px;font-size:12px;color:#6b7280"></div>
   <div class="upload-status" id="upload-status"></div>
 </div>
 
@@ -968,9 +973,6 @@ table.lk input[type=radio]{accent-color:#0f766e;width:15px;height:15px}
 </div><!-- /container -->
 
 <script>
-// ─── Configuration ────────────────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwo_-x_S1cvbnTqyiR_jrqkn0NZazJJQA7EYgfgzDY67Flk0EEbq_15uxIkWB8kmuTw/exec';
-
 // ─── Section Navigation ───────────────────────────────────────────────────────
 const SECTION_IDS = ['intro','personal','health','sleep','mood','physical','leisure','social','diet','smoking','env'];
 let currentIdx = 0;
@@ -1023,6 +1025,50 @@ function iv(id) {
 function sv(id) {
   const el = document.getElementById(id);
   return el ? el.value : '';
+}
+
+function focusInvalidField(el, message) {
+  const section = el.closest('.section');
+  if (section) {
+    const idx = SECTION_IDS.indexOf(section.id.replace('sec-', ''));
+    if (idx >= 0) goSection(idx);
+  }
+  alert(message);
+  el.focus();
+  return false;
+}
+
+function validateAssessmentInputs() {
+  const numericFields = [
+    {id:'q_age', label:'年齡'},
+    {id:'q_height', label:'身高'},
+    {id:'q_weight', label:'體重'}
+  ];
+  for (const spec of numericFields) {
+    const el = document.getElementById(spec.id);
+    const value = Number(el.value);
+    if (!Number.isFinite(value) || value < Number(el.min) || value > Number(el.max)) {
+      return focusInvalidField(el, '請填寫有效的' + spec.label + '（' + el.min + '–' + el.max + '）。');
+    }
+  }
+
+  const radioNames = [...new Set(
+    [...document.querySelectorAll('.section input[type="radio"][name]')]
+      .map(el => el.name)
+      .filter(name => !name.startsWith('c_'))
+  )];
+  for (const name of radioNames) {
+    if (name === 'q_htn_med' && rv('q_htn') !== 'yes') continue;
+    if (!rv(name)) {
+      const first = document.querySelector('.section input[type="radio"][name="' + name + '"]');
+      return focusInvalidField(first, '請完成目前尚未作答的題目。');
+    }
+  }
+
+  for (const select of document.querySelectorAll('.section select')) {
+    if (!select.value) return focusInvalidField(select, '請完成目前尚未作答的題目。');
+  }
+  return true;
 }
 
 // ─── Scoring Functions ────────────────────────────────────────────────────────
@@ -1271,6 +1317,10 @@ function calcCompositeScore(params) {
 
 // ─── Compute and Show Results ─────────────────────────────────────────────────
 function computeAndShowResults() {
+  // 完成計算後把本次紀錄累積到本機主表（供「匯出主表」使用）
+  try { setTimeout(function(){ saveRecord(buildRecord()); updateRecordCount(); }, 0); } catch (e) { console.warn('主表累積失敗：', e); }
+
+  if (!validateAssessmentInputs()) return;
   const age = iv('q_age');
   const gender = rv('q_gender');
   const edu = sv('q_edu');
@@ -1304,7 +1354,7 @@ function computeAndShowResults() {
     overallDesc = '您目前的生活型態風險因子較少，請持續維持良好習慣，定期自我監測。';
   } else if (riskCount <= 4) {
     overallRisk = '中等風險'; overallClass = 'risk-mod';
-    overallDesc = '您有數項可改善的風險因子。透過生活型態調整，可有效降低未來失智風險。';
+    overallDesc = '您有數項可改善的風險因子。健康生活型態可能有助於降低部分可改變風險。';
   } else {
     overallRisk = '需要關注'; overallClass = 'risk-high';
     overallDesc = '您有多項風險因子需要積極改善。建議與您的醫師討論，並採取系統性的生活型態改變。';
@@ -1413,9 +1463,6 @@ function computeAndShowResults() {
   }
   document.getElementById('res-recommendations').innerHTML = recHTML;
 
-  // 自動靜默上傳（no-cors，不阻塞 UI）
-  silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp);
-
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1425,7 +1472,7 @@ function getRec(label) {
     '心血管風險': `
       <li>定期至家庭醫師或內科門診量血壓、血糖、血脂（建議每年至少一次）</li>
       <li>血壓目標：收縮壓 &lt;130 mmHg（依醫師建議）；中年期高血壓尤其重要</li>
-      <li>糖尿病患者應遵醫囑規律服藥，血糖控制可降低約一半的失智風險</li>
+      <li>糖尿病患者應遵醫囑規律服藥；良好血糖控制有助於整體心血管與腦部健康</li>
       <li>維持健康體重（BMI 18.5–24 kg/m²，台灣標準過重 ≥24，肥胖 ≥27）</li>
       <li>增加富含 Omega-3 的食物：鮭魚、核桃、亞麻籽、酪梨、菠菜</li>
       <li>減少飽和脂肪（炸雞、豬油）和反式脂肪（人造奶油、糕點）</li>
@@ -1470,10 +1517,10 @@ function getRec(label) {
       <li>每週至少 1 次非油炸魚類（富含 Omega-3 脂肪酸）</li>
       <li>以全穀雜糧（糙米、燕麥、地瓜）替代白米飯和白麵包</li>
       <li>限制紅肉（每週 &lt;4 餐）、加工肉品、奶油、起司</li>
-      <li>採用<strong>MIND 飲食</strong>（地中海-DASH 組合）可降低 53% 的阿茲海默症風險</li>
+      <li><strong>MIND 飲食</strong>（地中海-DASH 組合）與較佳的認知健康相關，但不能視為個人的確定風險降幅</li>
       <li>可考慮以橄欖油或芥花油取代豬油、人造奶油</li>`,
     '吸菸': `
-      <li><strong>任何年齡戒菸都能降低失智風險</strong>——戒菸後腦細胞死亡速度即減緩</li>
+      <li><strong>戒菸有益於心血管與腦部健康</strong>；若需要協助，可使用戒菸門診或專線</li>
       <li>吸菸者失智風險約為不吸菸者的 <strong>1.5–2 倍</strong></li>
       <li>請至家庭醫師或戒菸門診諮詢，健保有提供戒菸衛教及用藥補助</li>
       <li>台灣戒菸專線：<strong>0800-636363</strong></li>`,
@@ -1509,6 +1556,7 @@ function downloadTextReport() {
   const vasc = calcVascular(bmiObj);
   const smoke = calcSmoke();
   const alc = calcAlcohol(rv('q_gender'));
+  const age = iv('q_age');
 
   txt += '【個人基本資料】\n';
   txt += '年齡：' + (iv('q_age')||'未填') + ' 歲\n';
@@ -1527,7 +1575,7 @@ function downloadTextReport() {
 
   // Composite scoring for text report
   var comp2 = calcCompositeScore({
-    age: age, gender: rv('q_gender'), edu: sv('q_edu'),
+    age: iv('q_age'), gender: rv('q_gender'), edu: sv('q_edu'),
     bmiObj: bmiObj, cesd: cesd, ipaq: ipaq, cog: cog,
     soc: soc, mind: mind, vasc: vasc, smoke: smoke, isi: isi
   });
@@ -1555,38 +1603,94 @@ function downloadTextReport() {
   txt += '本報告僅供健康促進參考，不能取代醫師診斷。\n';
   txt += '改編自 CogDrisk © NeuRA & UNSW Sydney。\n';
 
-  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'CogDrisk評估報告_' + new Date().toISOString().slice(0,10) + '.txt';
-  a.click();
+  downloadBlob(new Blob([txt], {type:'text/plain;charset=utf-8'}),
+               'CogDrisk評估報告_' + stamp() + '.txt');
 }
 
-// ─── Auto Google Drive Upload（結果顯示後靜默觸發）────────────────────────────
-function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp) {
-  if (!SCRIPT_URL) return;
-  const payload = {
-    tool: 'CogDrisk-TW', version: '1.0-TW',
+// ─── 個別 JSON 與主表（CSV，Excel 可直接開）─────────────────────────────────
+// 設計說明：
+// - buildRecord() 是單一真相，JSON 匯出與主表共用同一份欄位定義，避免兩邊漂移。
+// - 主表採「累積式」：每完成一次評估就存進本機瀏覽器，按鈕匯出**全部**紀錄。
+//   單場評估只有一列的表沒有意義；累積才叫主表（與 MoCA 主表同樣的概念）。
+// - 資料只留在這台裝置的瀏覽器，不會上傳。清除瀏覽器資料會一併清掉，
+//   重要資料請定期匯出。
+
+var COGDRISK_STORE_KEY = 'cogdrisk_records_v1';
+
+// 主表欄位順序＝單一真相；新增欄位請同時加在這裡與 recordToRow()
+var COGDRISK_COLUMNS = [
+  'recordId', 'timestamp', 'tool', 'version',
+  'age', 'gender', 'edu', 'ageGroup',
+  'bmi', 'bmiCat',
+  'isiTotal', 'isiLevel', 'cesdTotal', 'cesdLevel',
+  'ipaqMet', 'ipaqLevel', 'cogAvg', 'cogLevel',
+  'socialTotal', 'socialLevel', 'mindScore', 'mindLevel',
+  'smokeStatus', 'alcWeekly', 'alcLevel',
+  'vascCount', 'vascFactors', 'pesticide',
+  'compAnyDemRaw', 'compAnyDemDisplay', 'compAnyDemRisk',
+  'compAdRaw', 'compAdDisplay', 'compAdRisk',
+  'caideScore', 'caidePct', 'notes'
+];
+
+function buildRecord() {
+  var bmiObj = calcBMI();
+  var isi = calcISI();
+  var cesd = calcCESD();
+  var ipaq = calcIPAQ();
+  var cog = calcCognitiveEngagement();
+  var soc = calcSocial();
+  var mind = calcMIND();
+  var vasc = calcVascular(bmiObj);
+  var smoke = calcSmoke();
+  var gender = rv('q_gender');
+  var alc = calcAlcohol(gender);
+
+  var comp = calcCompositeScore({
+    age: iv('q_age'), gender: gender, edu: sv('q_edu'),
+    bmiObj: bmiObj, cesd: cesd, ipaq: ipaq, cog: cog,
+    soc: soc, mind: mind, vasc: vasc, smoke: smoke, isi: isi
+  });
+
+  // CAIDE 只有使用者按過計算才有值
+  var caideScore = null, caidePct = null;
+  var caideCard = document.getElementById('caide-result');
+  if (caideCard && caideCard.innerHTML.trim() !== '') {
+    var pctEl = caideCard.querySelector('.caide-pct');
+    var scoreEl = caideCard.querySelector('strong');
+    caidePct = pctEl ? pctEl.textContent : null;
+    caideScore = scoreEl ? scoreEl.textContent : null;
+  }
+
+  return {
+    recordId: 'cog' + Date.now().toString(36),
     timestamp: new Date().toISOString(),
-    age: iv('q_age'), gender: rv('q_gender'), edu: sv('q_edu'),
+    tool: 'CogDrisk-TW',
+    version: '1.0-TW',
+    age: iv('q_age'),
+    gender: gender,
+    edu: sv('q_edu'),
+    ageGroup: comp ? comp.ageGroup : null,
     bmi: bmiObj ? bmiObj.bmi : null,
-    bmi_cat: bmiObj ? bmiObj.cat : null,
-    isi_total: isi.total, isi_level: isi.level,
-    cesd_total: cesd.total, cesd_level: cesd.level,
-    ipaq_met: ipaq.total, ipaq_level: ipaq.level,
-    mind_score: mind.score, mind_level: mind.level,
-    social_total: soc.total, social_level: soc.level,
-    smoke_status: smoke.status,
-    alc_weekly: alc.weekly, alc_level: alc.level,
-    vasc_count: vasc.count, vasc_factors: vasc.factors.join('|'),
-    pest: rv('q_pest'),
-    comp_any_dem_raw: comp ? comp.anyDemRaw : null,
-    comp_any_dem_display: comp ? comp.anyDemDisplay : null,
-    comp_any_dem_risk: comp ? comp.anyDemRisk.label : null,
-    comp_ad_raw: comp ? comp.adRaw : null,
-    comp_ad_display: comp ? comp.adDisplay : null,
-    comp_ad_risk: comp ? comp.adRisk.label : null,
-    age_group: comp ? comp.ageGroup : null,
+    bmiCat: bmiObj ? bmiObj.cat : null,
+    isiTotal: isi.total, isiLevel: isi.level,
+    cesdTotal: cesd.total, cesdLevel: cesd.level,
+    ipaqMet: ipaq.total, ipaqLevel: ipaq.level,
+    cogAvg: cog.avg, cogLevel: cog.level,
+    socialTotal: soc.total, socialLevel: soc.level,
+    mindScore: mind.score, mindLevel: mind.level,
+    smokeStatus: smoke.status,
+    alcWeekly: alc.weekly, alcLevel: alc.level,
+    vascCount: vasc.count,
+    vascFactors: (vasc.factors || []).join('|'),
+    pesticide: rv('q_pest'),
+    compAnyDemRaw: comp ? comp.anyDemRaw : null,
+    compAnyDemDisplay: comp ? comp.anyDemDisplay : null,
+    compAnyDemRisk: comp ? comp.anyDemRisk.label : null,
+    compAdRaw: comp ? comp.adRaw : null,
+    compAdDisplay: comp ? comp.adDisplay : null,
+    compAdRisk: comp ? comp.adRisk.label : null,
+    caideScore: caideScore,
+    caidePct: caidePct,
     notes: sv('q_notes'),
     raw: {
       q_htn: rv('q_htn'), q_htn_med: rv('q_htn_med'),
@@ -1594,11 +1698,89 @@ function silentUpload(bmiObj, isi, cesd, ipaq, mind, soc, smoke, alc, vasc, comp
       q_stroke: rv('q_stroke'), q_afib: rv('q_afib'), q_head: rv('q_head')
     }
   };
-  fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload)
-  }).catch(() => {}); // 靜默失敗，不打擾使用者
+}
+
+function exportJSON() {
+  var rec = buildRecord();
+  downloadBlob(new Blob([JSON.stringify(rec, null, 2)], {type: 'application/json;charset=utf-8'}),
+               'CogDrisk_' + rec.recordId + '_' + stamp() + '.json');
+}
+
+// ─── 本機累積主表 ─────────────────────────────────────────────────────────────
+function loadRecords() {
+  try {
+    var raw = localStorage.getItem(COGDRISK_STORE_KEY);
+    var arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    return [];   // 隱私模式或儲存被封鎖時，靜默退回空陣列
+  }
+}
+
+function saveRecord(rec) {
+  try {
+    var arr = loadRecords();
+    if (arr.some(function (r) { return r.recordId === rec.recordId; })) return arr.length;
+    arr.push(rec);
+    localStorage.setItem(COGDRISK_STORE_KEY, JSON.stringify(arr));
+    return arr.length;
+  } catch (e) {
+    return loadRecords().length;
+  }
+}
+
+function csvCell(v) {
+  if (v === null || v === undefined) return '';
+  var s = String(v).replace(/\r\n|\r|\n/g, ' ');
+  return /[",]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function recordToRow(rec) {
+  return COGDRISK_COLUMNS.map(function (k) { return csvCell(rec[k]); }).join(',');
+}
+
+function exportMasterTable() {
+  var arr = loadRecords();
+  if (!arr.length) {
+    alert('目前這台裝置還沒有已完成的評估紀錄。\n完成一次評估後，紀錄會自動累積到主表。');
+    return;
+  }
+  var lines = [COGDRISK_COLUMNS.join(',')];
+  arr.forEach(function (r) { lines.push(recordToRow(r)); });
+  // UTF-8 BOM：Excel 直接開才不會中文亂碼
+  var csv = '﻿' + lines.join('\r\n') + '\r\n';
+  downloadBlob(new Blob([csv], {type: 'text/csv;charset=utf-8'}),
+               'CogDrisk主表_' + arr.length + '筆_' + stamp() + '.csv');
+}
+
+function updateRecordCount() {
+  var el = document.getElementById('record-count');
+  if (!el) return;
+  var n = loadRecords().length;
+  el.textContent = n ? ('本機已累積 ' + n + ' 筆評估紀錄（僅存於這台裝置的瀏覽器）') : '';
+  el.style.display = n ? '' : 'none';
+}
+
+// ─── 下載共用工具 ──────────────────────────────────────────────────────────────
+// 注意：a 元素必須先加入 document 才 click()，否則部分瀏覽器不會觸發下載。
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+// 檔名時間戳：YYYY-MM-DD_HHMM（本地時間，避免同日多筆互相覆蓋）
+function stamp() {
+  const d = new Date();
+  const p = function(n){ return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+       + '_' + p(d.getHours()) + p(d.getMinutes());
 }
 
 // ─── CAIDE 20-year Dementia Risk (Kivipelto et al. 2006, Lancet Neurol) ─────────
@@ -1716,7 +1898,7 @@ function resetAll() {
   // Clear all selects
   document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
   // Clear all text inputs (except keep select default)
-  ['q_age','q_height','q_weight','q_notes'].forEach(id => {
+  ['q_age','q_height','q_weight'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
